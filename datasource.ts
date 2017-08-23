@@ -5,30 +5,21 @@ import _ from 'lodash';
 class AkumuliDatasource {
 
   /** @ngInject */
-  constructor(private backendSrv, private $q) {}
+  constructor(private instanceSettings, private backendSrv, private $q) {}
 
   query(options) {
-    return this.backendSrv.get('/api/tsdb/testdata/random-walk', {
-      from: options.range.from.valueOf(),
-      to: options.range.to.valueOf(),
-      intervalMs: options.intervalMs,
-      maxDataPoints: options.maxDataPoints,
-    }).then(res => {
+    return this.timeSeriesQuery(options.range.from, options.range.to).then(res => {
       var data = [];
-      console.log(options.range.from.format('YYYMMDDThhmmssSSS'));
-      console.log(options.range.to.format('YYYMMDDThhmmssSSS'));
       if (res.results) {
         _.forEach(res.results, queryRes => {
-          for (let series of queryRes.series) {
-            data.push({
-              target: series.name,
-              datapoints: series.points
-            });
-          }
+          console.log("Query res: " + queryRes);
+          data.push({
+            target: "seriesname",
+            datapoints: []
+          });
         });
       }
-
-      return {data: data};
+      return { data: data };
     });
   }
 
@@ -46,6 +37,26 @@ class AkumuliDatasource {
     });
   }
 
+  /** Query time-series storage */
+  timeSeriesQuery(begin, end) {
+    console.log('timeSeriesQuery: ' + begin.format('YYYYMMDDThhmmss.SSS')
+                                    +   end.format('YYYYMMDDThhmmss.SSS'));
+    var requestBody: any = {
+      select: "proc.net.bytes direction=in host=SW-0044 iface=eth0",
+      range: {
+        from: begin.format('YYYYMMDDThhmmss.SSS'),
+        to: end.format('YYYYMMDDThhmmss.SSS')
+      }
+    };
+
+    var options: any = {
+      method: "POST",
+      url: this.instanceSettings.url + "/api/query",
+      data: requestBody
+    };
+
+    return this.backendSrv.datasourceRequest(options);
+  }
 }
 
 export {AkumuliDatasource};

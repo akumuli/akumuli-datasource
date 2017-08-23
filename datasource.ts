@@ -1,6 +1,7 @@
 ///<reference path="../../../headers/common.d.ts" />
 
 import _ from 'lodash';
+import moment from "moment";
 
 class AkumuliDatasource {
 
@@ -10,15 +11,32 @@ class AkumuliDatasource {
   query(options) {
     return this.timeSeriesQuery(options.range.from, options.range.to).then(res => {
       var data = [];
-      if (res.results) {
-        _.forEach(res.results, queryRes => {
-          console.log("Query res: " + queryRes);
-          data.push({
-            target: "seriesname",
-            datapoints: []
-          });
-        });
-      }
+      var lines = res.data.split("\r\n");
+      var index = 0;
+      var series = null;
+      var timestamp = null;
+      var value = 0.0;
+      _.forEach(lines, line => {
+        let step = index % 3;
+        switch (step) {
+          case 0:
+            // parse series name
+            series = line;
+            break;
+          case 1:
+            // parse timestamp
+            timestamp = moment(line);
+            break;
+          case 2:
+            value = parseFloat(line);
+            break;
+        }
+        if (step === 2) {
+          console.log("Data point ready: ", series, ", ", timestamp.format(), ", ", value);
+          // data.push ...
+        }
+        index++;
+      });
       return { data: data };
     });
   }

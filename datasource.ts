@@ -42,10 +42,13 @@ class AkumuliDatasource {
     console.log('timeSeriesQuery: ' + begin.format('YYYYMMDDThhmmss.SSS')
                                     +   end.format('YYYYMMDDThhmmss.SSS'));
     var requestBody: any = {
-      select: "proc.net.bytes direction=in host=SW-0044 iface=eth0",
+      select: "proc.net.bytes",
       range: {
         from: begin.format('YYYYMMDDThhmmss.SSS'),
         to: end.format('YYYYMMDDThhmmss.SSS')
+      },
+      where: {
+        iface: 'eth0'
       }
     };
 

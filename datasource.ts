@@ -67,6 +67,18 @@ class AkumuliDatasource {
     });
   }
 
+  /** Test that datasource connection works */
+  testDatasource() {
+    var options: any = {
+      method: "GET",
+      url: this.instanceSettings.url + "/api/stats",
+      data: ""
+    };
+    return this.backendSrv.datasourceRequest(options).then(res => {
+      return { status: "success", message: "Data source is working", title: "Success" };
+    });
+  }
+
   metricFindQuery(options) {
     console.log(options);
     return this.$q.when({data: []});

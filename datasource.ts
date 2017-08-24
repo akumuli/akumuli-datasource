@@ -9,34 +9,60 @@ class AkumuliDatasource {
   constructor(private instanceSettings, private backendSrv, private $q) {}
 
   query(options) {
-    return this.timeSeriesQuery(options.range.from, options.range.to).then(res => {
+    console.log("Query:");
+    console.log(options.targets);
+    console.log(options.maxDataPoints);
+    console.log(options.interval);
+    console.log("-----");
+    return this.timeSeriesQuery(options).then(res => {
       var data = [];
       var lines = res.data.split("\r\n");
       var index = 0;
       var series = null;
       var timestamp = null;
       var value = 0.0;
+      var datapoints = [];
+      var currentTarget = null;
       _.forEach(lines, line => {
-        let step = index % 3;
+        let step = index % 4;
         switch (step) {
           case 0:
             // parse series name
-            series = line;
+            series = line.replace(/(\S*)(:mean)(.*)/g, "$1$3").substr(1);
             break;
           case 1:
             // parse timestamp
-            timestamp = moment(line);
+            timestamp = moment.utc(line.substr(1)).local();
             break;
           case 2:
-            value = parseFloat(line);
+            break;
+          case 3:
+            value = parseFloat(line.substr(1));
             break;
         }
-        if (step === 2) {
-          console.log("Data point ready: ", series, ", ", timestamp.format(), ", ", value);
-          // data.push ...
+        if (step === 3) {
+          if (currentTarget == null) {
+            currentTarget = series;
+          }
+          if (currentTarget === series) {
+            datapoints.push([value, timestamp]);
+          } else {
+            data.push({
+              target: currentTarget,
+              datapoints: datapoints
+            });
+            datapoints = [[value, timestamp]];
+            currentTarget = series;
+          }
         }
         index++;
       });
+      if (datapoints.length !== 0) {
+        data.push({
+          target: currentTarget,
+          datapoints: datapoints
+        });
+      }
       return { data: data };
     });
   }
@@ -56,18 +82,28 @@ class AkumuliDatasource {
   }
 
   /** Query time-series storage */
-  timeSeriesQuery(begin, end) {
+  timeSeriesQuery(options) {
+    var begin    = options.range.from.utc();
+    var end      = options.range.to.utc();
+    var interval = options.interval;
+    var limit    = options.maxDataPoints;
     console.log('timeSeriesQuery: ' + begin.format('YYYYMMDDThhmmss.SSS')
                                     +   end.format('YYYYMMDDThhmmss.SSS'));
     var requestBody: any = {
-      select: "proc.net.bytes",
+      "group-aggregate": {
+        metric: "net.stat.tcp.retransmit",
+        step: interval,
+        func: [ "mean" ]
+      },
       range: {
         from: begin.format('YYYYMMDDThhmmss.SSS'),
         to: end.format('YYYYMMDDThhmmss.SSS')
       },
       where: {
-        iface: 'eth0'
-      }
+        host: "SW-0044"
+      },
+      //limit: limit,
+      "order-by": "series"
     };
 
     var options: any = {

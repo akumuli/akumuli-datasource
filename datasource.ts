@@ -15,6 +15,10 @@ class AkumuliDatasource {
     console.log(options.interval);
     console.log("-----");
     return this.timeSeriesQuery(options).then(res => {
+      if (res.data.charAt(0) === '-') {
+        console.log("Query error");
+        return { data: null };
+      }
       var data = [];
       var lines = res.data.split("\r\n");
       var index = 0;
@@ -93,6 +97,23 @@ class AkumuliDatasource {
     });
   }
 
+  getAggregators() {
+    // TODO: query aggregators from Akumuli
+    return new Promise((resolve, reject) => {
+      resolve(["mean", "sum", "count", "min", "max"]);
+    });
+  }
+
+  suggestTagKeys(options) {
+    // TODO: implement
+    return [];
+  }
+
+  suggestTagValues(options) {
+    // TODO: implement
+    return [];
+  }
+
   /** Query time-series storage */
   timeSeriesQuery(options) {
     var begin    = options.range.from.utc();
@@ -101,19 +122,24 @@ class AkumuliDatasource {
     var limit    = options.maxDataPoints;
     console.log('timeSeriesQuery: ' + begin.format('YYYYMMDDThhmmss.SSS')
                                     +   end.format('YYYYMMDDThhmmss.SSS'));
+    if (options.targets.length !== 1) {
+      console.log("Only a signel target is supported at the moment");
+      throw new Error("Only a signel target is supported at the moment");
+    }
+    var metricName = options.targets[0].metric;
+    var tags       = options.targets[0].tags;
+    var aggFunc    = options.targets[0].downsampleAggregator;
     var requestBody: any = {
       "group-aggregate": {
-        metric: "net.stat.tcp.retransmit",
+        metric: metricName,
         step: interval,
-        func: [ "mean" ]
+        func: [ aggFunc ]
       },
       range: {
         from: begin.format('YYYYMMDDThhmmss.SSS'),
         to: end.format('YYYYMMDDThhmmss.SSS')
       },
-      where: {
-        host: "SW-0044"
-      },
+      where: tags,
       //limit: limit,
       "order-by": "series"
     };

@@ -50,15 +50,9 @@ export class AkumuliQueryCtrl extends QueryCtrl {
       }
     });
 
-    this.datasource.getFilterTypes().then((filterTypes) => {
-      if (filterTypes.length !== 0) {
-        this.filterTypes = filterTypes;
-      }
-    });
-
     // needs to be defined here as it is called from typeahead
     this.suggestMetrics = (query, callback) => {
-      this.datasource.metricFindQuery('metrics(' + query + ')')
+      this.datasource.metricFindQuery(query)
       .then(this.getTextValues)
       .then(callback);
     };
@@ -68,7 +62,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     };
 
     this.suggestTagValues = (query, callback) => {
-      this.datasource.metricFindQuery('suggest_tagv(' + query + ')')
+      this.datasource.metricFindQuery(query)
       .then(this.getTextValues)
       .then(callback);
     };

@@ -83,9 +83,29 @@ class AkumuliDatasource {
     });
   }
 
-  metricFindQuery(options) {
-    console.log(options);
-    return this.$q.when({data: []});
+  metricFindQuery(metricName) {
+    var requestBody: any = {
+      select: metricName,
+      limit: 10
+    };
+    var httpRequest: any = {
+      method: "POST",
+      url: this.instanceSettings.url + "/api/suggest",
+      data: requestBody
+    };
+
+    return this.backendSrv.datasourceRequest(httpRequest).then(res => {
+      var data = [];
+      if (res.data.charAt(0) === '-') {
+        console.log("Query error");
+        return { data: null };
+      }
+      var lines = res.data.split("\r\n");
+      _.forEach(lines, line => {
+        data.push(line.subdir(1));
+      });
+      return { data: data };
+    });
   }
 
   annotationQuery(options) {
@@ -144,13 +164,13 @@ class AkumuliDatasource {
       "order-by": "series"
     };
 
-    var options: any = {
+    var httpRequest: any = {
       method: "POST",
       url: this.instanceSettings.url + "/api/query",
       data: requestBody
     };
 
-    return this.backendSrv.datasourceRequest(options);
+    return this.backendSrv.datasourceRequest(httpRequest);
   }
 }
 

@@ -26,7 +26,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     super($scope, $injector);
 
     this.errors = this.validateTarget();
-    this.aggregators = ['avg', 'sum', 'min', 'max', 'dev', 'zimsum', 'mimmin', 'mimmax'];
+    this.aggregators = ['sum', 'min', 'max', 'mean', 'count'];
     this.fillPolicies = ['none', 'nan', 'null', 'zero'];
     this.filterTypes = ['wildcard','iliteral_or','not_iliteral_or','not_literal_or','iwildcard','literal_or','regexp'];
 
@@ -37,7 +37,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     }
 
     if (!this.target.downsampleAggregator) {
-      this.target.downsampleAggregator = 'avg';
+      this.target.downsampleAggregator = 'mean';
     }
 
     if (!this.target.downsampleFillPolicy) {
@@ -58,11 +58,13 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     };
 
     this.suggestTagKeys = (query, callback) => {
-      this.datasource.suggestTagKeys(this.target.metric).then(callback);
+      this.datasource.suggestTagKeys(this.target.metric, this.target.currentTagKey)
+      .then(this.getTextValues)
+      .then(callback);
     };
 
     this.suggestTagValues = (query, callback) => {
-      this.datasource.metricFindQuery(query)
+      this.datasource.suggestTagValues(this.target.metric, this.target.currentTagKey, this.target.currentTagValue)
       .then(this.getTextValues)
       .then(callback);
     };

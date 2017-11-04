@@ -1,7 +1,7 @@
 {
   "type": "datasource",
   "name": "Akumuli",
-  "id": "akumuli",
+  "id": "akumuli-datasource",
 
   "metrics": true,
   "defaultMatchFormat": "pipe",
@@ -10,7 +10,7 @@
 
   "info": {
     "author": {
-      "name": "Akumuli Project",
+      "name": "Akumuli Authors",
       "url": "https://akumuli.org"
     },
     "logos": {

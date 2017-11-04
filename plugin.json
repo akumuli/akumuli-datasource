@@ -14,8 +14,8 @@
       "url": "https://akumuli.org"
     },
     "logos": {
-      "small": "img/opentsdb_logo.png",
-      "large": "img/opentsdb_logo.png"
+      "small": "img/logo.svg.png",
+      "large": "img/logo.svg.png"
     }
   }
 }

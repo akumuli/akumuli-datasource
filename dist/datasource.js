@@ -59,6 +59,27 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         return data;
                     });
                 };
+                /** Parse series name in a canonical form */
+                AkumuliDatasource.prototype.extractTags = function (names) {
+                    var where = [];
+                    lodash_1.default.forEach(names, function (name) {
+                        var tags = name.split(' ');
+                        if (tags.length < 2) {
+                            // This shouldn't happen since series name should
+                            // contain a metric name and at least one tag.
+                            throw "bad metric name received";
+                        }
+                        var tagset = {};
+                        for (var i = 1; i < tags.length; i++) {
+                            var kv = tags[i].split('=');
+                            var tag = kv[0];
+                            var value = kv[1];
+                            tagset[tag] = value;
+                        }
+                        where.push(tagset);
+                    });
+                    return where;
+                };
                 AkumuliDatasource.prototype.annotationQuery = function (options) {
                     return this.backendSrv.get('/api/annotations', {
                         from: options.range.from.valueOf(),
@@ -133,6 +154,73 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                             }
                         });
                         return data;
+                    });
+                };
+                /** Query time-series storage */
+                AkumuliDatasource.prototype.groupAggregateTopNQuery = function (begin, end, interval, limit, target) {
+                    var _this = this;
+                    // Use all the same parametres as original query
+                    // but add 'top' function to the 'apply' clause.
+                    // Extract tags from results and run 'select' query
+                    // nomrally.
+                    var metricName = target.metric;
+                    var tags = target.tags;
+                    var isTop = target.topN ? true : false;
+                    var topN = target.topN;
+                    if (!isTop) {
+                        throw "top-N parameter required";
+                    }
+                    var query = {
+                        select: metricName,
+                        range: {
+                            from: begin.format('YYYYMMDDTHHmmss.SSS'),
+                            to: end.format('YYYYMMDDTHHmmss.SSS')
+                        },
+                        where: tags,
+                        "order-by": "series",
+                        apply: [{ name: "top", N: topN }]
+                    };
+                    var httpRequest = {
+                        method: "POST",
+                        url: this.instanceSettings.url + "/api/query",
+                        data: query
+                    };
+                    return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
+                        var data = [];
+                        if (res.status === 'error') {
+                            throw res.error;
+                        }
+                        if (res.data.charAt(0) === '-') {
+                            throw { message: "Query error: " + res.data.substr(1) };
+                        }
+                        var lines = res.data.split("\r\n");
+                        var index = 0;
+                        var series = null;
+                        var timestamp = null;
+                        var value = 0.0;
+                        var datapoints = [];
+                        var currentTarget = null;
+                        var series_names = [];
+                        lodash_1.default.forEach(lines, function (line) {
+                            var step = index % 3;
+                            if (step === 0) {
+                                // parse series name
+                                series = line.substr(1);
+                                if (series) {
+                                    series_names.push(series);
+                                }
+                            }
+                            index++;
+                        });
+                        var newTarget = {
+                            metric: metricName,
+                            tags: _this.extractTags(series_names),
+                            shouldComputeRate: target.shouldComputeRate,
+                            shouldEWMA: target.shouldEWMA,
+                            decay: target.decay,
+                            downsampleAggregator: target.downsampleAggregator
+                        };
+                        return _this.groupAggregateTargetQuery(begin, end, interval, limit, newTarget);
                     });
                 };
                 /** Query time-series storage */
@@ -229,6 +317,72 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                     });
                 };
                 /** Query time-series storage */
+                AkumuliDatasource.prototype.selectTopNQuery = function (begin, end, limit, target) {
+                    var _this = this;
+                    // Use all the same parametres as original query
+                    // but add 'top' function to the 'apply' clause.
+                    // Extract tags from results and run 'select' query
+                    // nomrally.
+                    var metricName = target.metric;
+                    var tags = target.tags;
+                    var isTop = target.topN ? true : false;
+                    var topN = target.topN;
+                    if (!isTop) {
+                        throw "top-N parameter required";
+                    }
+                    var query = {
+                        "select": metricName,
+                        range: {
+                            from: begin.format('YYYYMMDDTHHmmss.SSS'),
+                            to: end.format('YYYYMMDDTHHmmss.SSS')
+                        },
+                        where: tags,
+                        "order-by": "series",
+                        apply: [{ name: "top", N: topN }]
+                    };
+                    var httpRequest = {
+                        method: "POST",
+                        url: this.instanceSettings.url + "/api/query",
+                        data: query
+                    };
+                    return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
+                        var data = [];
+                        if (res.status === 'error') {
+                            throw res.error;
+                        }
+                        if (res.data.charAt(0) === '-') {
+                            throw { message: "Query error: " + res.data.substr(1) };
+                        }
+                        var lines = res.data.split("\r\n");
+                        var index = 0;
+                        var series = null;
+                        var timestamp = null;
+                        var value = 0.0;
+                        var datapoints = [];
+                        var currentTarget = null;
+                        var series_names = [];
+                        lodash_1.default.forEach(lines, function (line) {
+                            var step = index % 3;
+                            if (step === 0) {
+                                // parse series name
+                                series = line.substr(1);
+                                if (series) {
+                                    series_names.push(series);
+                                }
+                            }
+                            index++;
+                        });
+                        var newTarget = {
+                            metric: metricName,
+                            tags: _this.extractTags(series_names),
+                            shouldComputeRate: target.shouldComputeRate,
+                            shouldEWMA: target.shouldEWMA,
+                            decay: target.decay,
+                        };
+                        return _this.selectTargetQuery(begin, end, limit, newTarget);
+                    });
+                };
+                /** Query time-series storage */
                 AkumuliDatasource.prototype.selectTargetQuery = function (begin, end, limit, target) {
                     var metricName = target.metric;
                     var tags = target.tags;
@@ -321,11 +475,22 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                     var limit = options.maxDataPoints; // TODO: don't ignore the limit
                     var allQueryPromise = lodash_1.default.map(options.targets, function (target) {
                         var disableDownsampling = target.disableDownsampling;
+                        var isTop = target.topN ? true : false;
                         if (disableDownsampling) {
-                            return _this.selectTargetQuery(begin, end, limit, target);
+                            if (isTop) {
+                                return _this.selectTopNQuery(begin, end, limit, target);
+                            }
+                            else {
+                                return _this.selectTargetQuery(begin, end, limit, target);
+                            }
                         }
                         else {
-                            return _this.groupAggregateTargetQuery(begin, end, interval, limit, target);
+                            if (isTop) {
+                                return _this.groupAggregateTopNQuery(begin, end, interval, limit, target);
+                            }
+                            else {
+                                return _this.groupAggregateTargetQuery(begin, end, interval, limit, target);
+                            }
                         }
                     });
                     return this.$q.all(allQueryPromise).then(function (allResults) {

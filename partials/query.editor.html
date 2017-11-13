@@ -12,42 +12,18 @@
 						ng-blur="ctrl.targetBlur()">
 			</input>
 		</div>
-		<!--
-		<div class="gf-form">
-			<label class="gf-form-label query-keyword">
-				Aggregator
-				<a bs-tooltip="ctrl.errors.aggregator" style="color: rgb(229, 189, 28)" ng-show="ctrl.errors.aggregator">
-					<i class="fa fa-warning"></i>
-				</a>
-			</label>
-			<div class="gf-form-select-wrapper max-width-15">
-				<select ng-model="ctrl.target.aggregator" class="gf-form-input"
-								ng-options="agg for agg in ctrl.aggregators"
-								ng-change="ctrl.targetBlur()">
-		 	 </select>
-			</div>
+
+	    <div class="gf-form max-width-15">
+			<label class="gf-form-label query-keyword">Top-N</label>
+			<input type="text" class="gf-form-input"
+						 ng-model="ctrl.target.topN"
+						 ng-model-onblur
+			       ng-change="ctrl.targetBlur()"
+			       placeholder="Select Top N"></input>
+			<info-popover mode="right-absolute">
+				blank to disable, or for example <code>5</code>
+			</info-popover>
 		</div>
-		-->
-		<!--
-			<div class="gf-form max-width-20">
-				<label class="gf-form-label query-keyword width-6">
-					Alias:
-					<info-popover mode="right-normal">
-						Use patterns like $tag_tagname to replace part of the alias for a tag value
-					</info-popover>
-				</label>
-				<input  type="text" class="gf-form-input"
-		   					ng-model="ctrl.target.alias"
-								spellcheck='false'
-								placeholder="series alias"
-								data-min-length=0 data-items=100
-								ng-blur="ctrl.targetBlur()"></input>
-			</div>
-		 
-			<div class="gf-form gf-form--grow">
-				<div class="gf-form-label gf-form-label--grow"></div>
-			</div>
-		-->
 	</div>
 
 	<div class="gf-form-inline">
@@ -69,16 +45,6 @@
 				<select ng-model="ctrl.target.downsampleAggregator" class="gf-form-input"
 								ng-options="agg for agg in ctrl.aggregators"
 				        ng-change="ctrl.targetBlur()">
-				</select>
-			</div>
-		</div>
-
-		<div class="gf-form" ng-if="ctrl.tsdbVersion >= 2">
-			<label class="gf-form-label query-keyword width-6">Fill</label>
-			<div class="gf-form-select-wrapper">
-				<select ng-model="ctrl.target.downsampleFillPolicy" class="gf-form-input"
-								ng-options="agg for agg in ctrl.fillPolicies"
-								ng-change="ctrl.targetBlur()">
 				</select>
 			</div>
 		</div>

@@ -18,6 +18,17 @@
     "logos": {
       "small": "img/logo.svg.png",
       "large": "img/logo.svg.png"
-    }
+    },
+    "keywords": [
+      "akumuli",
+      "tsdb",
+      "time series",
+      "timeseries",
+      "time-series"
+    ]
+  },
+  "dependencies": {
+    "grafanaVersion": "4.x.x",
+    "plugins": []
   }
 }

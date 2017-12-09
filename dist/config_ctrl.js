@@ -17,7 +17,7 @@ System.register([], function (exports_1, context_1) {
                 }
                 return AkumuliConfigCtrl;
             }());
-            AkumuliConfigCtrl.templateUrl = 'akumuli-datasource/partials/config.html';
+            AkumuliConfigCtrl.templateUrl = 'public/plugins/akumuli-datasource/partials/config.html';
             exports_1("AkumuliConfigCtrl", AkumuliConfigCtrl);
         }
     };

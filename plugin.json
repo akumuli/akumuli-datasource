@@ -9,6 +9,8 @@
   "alerting": true,
 
   "info": {
+    "version": "1.0.3",
+    "description": "Datasource plugin for Akumuli time-series database",
     "author": {
       "name": "Akumuli Authors",
       "url": "https://akumuli.org"

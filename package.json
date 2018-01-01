@@ -1,12 +1,12 @@
 {
-  "name": "grafana-typescript-template-datasource",
+  "name": "akumuli-datasource",
   "version": "1.0.0",
-  "description": "TypeScript Template Data Source for Grafana. A starter template for creating data sources written in TypeScript for Grafana.",
+  "description": "Grafana datasource plugin for Akumuli Time-Series Database.",
   "scripts": {
     "build": "grunt",
     "test": "./node_modules/karma/bin/karma start"
   },
-  "author": "Grafana Labs",
+  "author": "Eugene Lazin",
   "license": "GPL",
   "dependencies": {
     "load-grunt-tasks": "^3.5.2",

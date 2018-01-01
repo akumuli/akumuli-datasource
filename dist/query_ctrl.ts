@@ -53,7 +53,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
 
     // needs to be defined here as it is called from typeahead
     this.suggestMetrics = (query, callback) => {
-      this.datasource.metricFindQuery(query)
+      this.datasource.suggestMetricNames(query)
       .then(this.getTextValues)
       .then(callback);
     };

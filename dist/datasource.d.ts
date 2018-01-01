@@ -2,12 +2,14 @@
 declare class AkumuliDatasource {
     private instanceSettings;
     private backendSrv;
+    private templateSrv;
     private $q;
     /** @ngInject */
-    constructor(instanceSettings: any, backendSrv: any, $q: any);
+    constructor(instanceSettings: any, backendSrv: any, templateSrv: any, $q: any);
     /** Test that datasource connection works */
     testDatasource(): any;
-    metricFindQuery(metricName: any): any;
+    metricFindQuery(queryString: any): any;
+    suggestMetricNames(metricName: any): any;
     /** Parse series name in a canonical form */
     extractTags(names: any): any[];
     annotationQuery(options: any): any;

@@ -13,9 +13,10 @@ System.register(['lodash', "moment"], function(exports_1) {
         execute: function() {
             AkumuliDatasource = (function () {
                 /** @ngInject */
-                function AkumuliDatasource(instanceSettings, backendSrv, $q) {
+                function AkumuliDatasource(instanceSettings, backendSrv, templateSrv, $q) {
                     this.instanceSettings = instanceSettings;
                     this.backendSrv = backendSrv;
+                    this.templateSrv = templateSrv;
                     this.$q = $q;
                 }
                 /** Test that datasource connection works */
@@ -29,7 +30,24 @@ System.register(['lodash', "moment"], function(exports_1) {
                         return { status: "success", message: "Data source is working", title: "Success" };
                     });
                 };
-                AkumuliDatasource.prototype.metricFindQuery = function (metricName) {
+                AkumuliDatasource.prototype.metricFindQuery = function (queryString) {
+                    var components = queryString.split(" ");
+                    var len = components.length;
+                    if (len == 0) {
+                        // query metric names
+                        return this.suggestMetricNames("");
+                    }
+                    else if (len == 1) {
+                        // query tag names
+                        return this.suggestTagKeys(components[0], "");
+                    }
+                    else if (len == 2) {
+                        // query tag values
+                        return this.suggestTagValues(components[0], components[1], "");
+                    }
+                    throw { message: "Invalid query string (up too three components can be used)" };
+                };
+                AkumuliDatasource.prototype.suggestMetricNames = function (metricName) {
                     var requestBody = {
                         select: "metric-names",
                         "starts-with": metricName
@@ -162,7 +180,14 @@ System.register(['lodash', "moment"], function(exports_1) {
                     // Extract tags from results and run 'select' query
                     // nomrally.
                     var metricName = target.metric;
-                    var tags = target.tags;
+                    var tags = {};
+                    if (target.tags) {
+                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                            var value = target.tags[key];
+                            value = _this.templateSrv.replace(value);
+                            tags[key] = value;
+                        });
+                    }
                     var isTop = target.topN ? true : false;
                     var topN = target.topN;
                     if (!isTop) {
@@ -218,8 +243,22 @@ System.register(['lodash', "moment"], function(exports_1) {
                 };
                 /** Query time-series storage */
                 AkumuliDatasource.prototype.groupAggregateTargetQuery = function (begin, end, interval, limit, target) {
+                    var _this = this;
                     var metricName = target.metric;
-                    var tags = target.tags;
+                    var tags = {};
+                    if (target.tags) {
+                        if (target.tags instanceof Array) {
+                            // Special case, TopN query is processed
+                            tags = target.tags;
+                        }
+                        else {
+                            lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                                var value = target.tags[key];
+                                value = _this.templateSrv.replace(value);
+                                tags[key] = value;
+                            });
+                        }
+                    }
                     var aggFunc = target.downsampleAggregator;
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
@@ -247,7 +286,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var httpRequest = {
                         method: "POST",
                         url: this.instanceSettings.url + "/api/query",
-                        data: query
+                        data: query,
                     };
                     // Read the actual data and process it
                     return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
@@ -317,7 +356,14 @@ System.register(['lodash', "moment"], function(exports_1) {
                     // Extract tags from results and run 'select' query
                     // nomrally.
                     var metricName = target.metric;
-                    var tags = target.tags;
+                    var tags = {};
+                    if (target.tags) {
+                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                            var value = target.tags[key];
+                            value = _this.templateSrv.replace(value);
+                            tags[key] = value;
+                        });
+                    }
                     var isTop = target.topN ? true : false;
                     var topN = target.topN;
                     if (!isTop) {
@@ -372,8 +418,22 @@ System.register(['lodash', "moment"], function(exports_1) {
                 };
                 /** Query time-series storage */
                 AkumuliDatasource.prototype.selectTargetQuery = function (begin, end, limit, target) {
+                    var _this = this;
                     var metricName = target.metric;
-                    var tags = target.tags;
+                    var tags = {};
+                    if (target.tags) {
+                        if (target.tags instanceof Array) {
+                            // Special case, TopN query is processed
+                            tags = target.tags;
+                        }
+                        else {
+                            lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                                var value = target.tags[key];
+                                value = _this.templateSrv.replace(value);
+                                tags[key] = value;
+                            });
+                        }
+                    }
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
                     var decay = target.decay || 0.5;

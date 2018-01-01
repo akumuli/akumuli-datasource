@@ -47,7 +47,7 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                     });
                     // needs to be defined here as it is called from typeahead
                     this.suggestMetrics = function (query, callback) {
-                        _this.datasource.metricFindQuery(query)
+                        _this.datasource.suggestMetricNames(query)
                             .then(_this.getTextValues)
                             .then(callback);
                     };

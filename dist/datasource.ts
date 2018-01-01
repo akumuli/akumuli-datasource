@@ -6,7 +6,7 @@ import moment from "moment";
 class AkumuliDatasource {
 
   /** @ngInject */
-  constructor(private instanceSettings, private backendSrv, private $q) {}
+  constructor(private instanceSettings, private backendSrv, private templateSrv, private $q) {}
 
   /** Test that datasource connection works */
   testDatasource() {
@@ -20,7 +20,23 @@ class AkumuliDatasource {
     });
   }
 
-  metricFindQuery(metricName) {
+  metricFindQuery(queryString) {
+    var components = queryString.split(" ");
+    var len = components.length;
+    if (len == 0) {
+      // query metric names
+      return this.suggestMetricNames("");
+    } else if (len == 1) {
+      // query tag names
+      return this.suggestTagKeys(components[0], "");
+    } else if (len == 2) {
+      // query tag values
+      return this.suggestTagValues(components[0], components[1], "");
+    }
+    throw { message: "Invalid query string (up too three components can be used)" };
+  }
+
+  suggestMetricNames(metricName) {
     var requestBody: any = {
       select: "metric-names",
       "starts-with": metricName
@@ -161,7 +177,14 @@ class AkumuliDatasource {
     // Extract tags from results and run 'select' query
     // nomrally.
     var metricName = target.metric;
-    var tags = target.tags;
+    var tags = {};
+    if (target.tags) {
+      _.forEach(Object.keys(target.tags), key => {
+        var value = target.tags[key];
+        value = this.templateSrv.replace(value);
+        tags[key] = value;
+      });
+    }
     var isTop = target.topN ? true : false;
     var topN = target.topN;
     if (!isTop) {
@@ -220,7 +243,19 @@ class AkumuliDatasource {
   /** Query time-series storage */
   groupAggregateTargetQuery(begin, end, interval, limit, target) {
     var metricName = target.metric;
-    var tags = target.tags;
+    var tags = {};
+    if (target.tags) {
+      if (target.tags instanceof Array) {
+        // Special case, TopN query is processed
+        tags = target.tags;
+      } else {
+        _.forEach(Object.keys(target.tags), key => {
+          var value = target.tags[key];
+          value = this.templateSrv.replace(value);
+          tags[key] = value;
+        });
+      }
+    }
     var aggFunc = target.downsampleAggregator;
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
@@ -249,8 +284,9 @@ class AkumuliDatasource {
     var httpRequest: any = {
       method: "POST",
       url: this.instanceSettings.url + "/api/query",
-      data: query
+      data: query,
     };
+
     // Read the actual data and process it
     return this.backendSrv.datasourceRequest(httpRequest).then(res => {
       var data = [];
@@ -318,7 +354,14 @@ class AkumuliDatasource {
     // Extract tags from results and run 'select' query
     // nomrally.
     var metricName = target.metric;
-    var tags = target.tags;
+    var tags = {};
+    if (target.tags) {
+      _.forEach(Object.keys(target.tags), key => {
+        var value = target.tags[key];
+        value = this.templateSrv.replace(value);
+        tags[key] = value;
+      });
+    }
     var isTop = target.topN ? true : false;
     var topN = target.topN;
     if (!isTop) {
@@ -377,7 +420,19 @@ class AkumuliDatasource {
   /** Query time-series storage */
   selectTargetQuery(begin, end, limit, target) {
     var metricName = target.metric;
-    var tags = target.tags;
+    var tags = {};
+    if (target.tags) {
+      if (target.tags instanceof Array) {
+        // Special case, TopN query is processed
+        tags = target.tags;
+      } else {
+        _.forEach(Object.keys(target.tags), key => {
+          var value = target.tags[key];
+          value = this.templateSrv.replace(value);
+          tags[key] = value;
+        });
+      }
+    }
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;

@@ -1,18 +1,16 @@
-///<reference path="../../../headers/common.d.ts" />
-System.register(["lodash", "moment"], function (exports_1, context_1) {
-    "use strict";
-    var __moduleName = context_1 && context_1.id;
-    var lodash_1, moment_1, AkumuliDatasource;
+///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
+System.register(['lodash', "moment"], function(exports_1) {
+    var lodash_1, moment_1;
+    var AkumuliDatasource;
     return {
-        setters: [
+        setters:[
             function (lodash_1_1) {
                 lodash_1 = lodash_1_1;
             },
             function (moment_1_1) {
                 moment_1 = moment_1_1;
-            }
-        ],
-        execute: function () {///<reference path="../../../headers/common.d.ts" />
+            }],
+        execute: function() {
             AkumuliDatasource = (function () {
                 /** @ngInject */
                 function AkumuliDatasource(instanceSettings, backendSrv, $q) {
@@ -186,7 +184,6 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         data: query
                     };
                     return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
-                        var data = [];
                         if (res.status === 'error') {
                             throw res.error;
                         }
@@ -196,10 +193,6 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         var lines = res.data.split("\r\n");
                         var index = 0;
                         var series = null;
-                        var timestamp = null;
-                        var value = 0.0;
-                        var datapoints = [];
-                        var currentTarget = null;
                         var series_names = [];
                         lodash_1.default.forEach(lines, function (line) {
                             var step = index % 3;
@@ -346,7 +339,6 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         data: query
                     };
                     return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
-                        var data = [];
                         if (res.status === 'error') {
                             throw res.error;
                         }
@@ -356,10 +348,6 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         var lines = res.data.split("\r\n");
                         var index = 0;
                         var series = null;
-                        var timestamp = null;
-                        var value = 0.0;
-                        var datapoints = [];
-                        var currentTarget = null;
                         var series_names = [];
                         lodash_1.default.forEach(lines, function (line) {
                             var step = index % 3;
@@ -502,9 +490,9 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                     });
                 };
                 return AkumuliDatasource;
-            }());
+            })();
             exports_1("AkumuliDatasource", AkumuliDatasource);
         }
-    };
+    }
 });
 //# sourceMappingURL=datasource.js.map

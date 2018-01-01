@@ -1,11 +1,9 @@
-///<reference path="../../../headers/common.d.ts" />
-System.register([], function (exports_1, context_1) {
-    "use strict";
-    var __moduleName = context_1 && context_1.id;
+///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
+System.register([], function(exports_1) {
     var AkumuliConfigCtrl;
     return {
-        setters: [],
-        execute: function () {///<reference path="../../../headers/common.d.ts" />
+        setters:[],
+        execute: function() {
             AkumuliConfigCtrl = (function () {
                 /** @ngInject */
                 function AkumuliConfigCtrl($scope) {
@@ -15,11 +13,12 @@ System.register([], function (exports_1, context_1) {
                     this.current.jsonData = this.current.jsonData || {};
                     this.current.jsonData.tsdbVersion = this.current.jsonData.tsdbVersion || 1;
                 }
+                //static templateUrl = 'public/plugins/akumuli-datasource/partials/config.html';
+                AkumuliConfigCtrl.templateUrl = 'partials/config.html';
                 return AkumuliConfigCtrl;
-            }());
-            AkumuliConfigCtrl.templateUrl = 'public/plugins/akumuli-datasource/partials/config.html';
+            })();
             exports_1("AkumuliConfigCtrl", AkumuliConfigCtrl);
         }
-    };
+    }
 });
 //# sourceMappingURL=config_ctrl.js.map

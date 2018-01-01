@@ -1,4 +1,4 @@
-/// <reference path="../../../../../public/app/headers/common.d.ts" />
+/// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 declare class AkumuliDatasource {
     private instanceSettings;
     private backendSrv;

@@ -1,4 +1,4 @@
-/// <reference path="../../../../../public/app/headers/common.d.ts" />
+/// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 export declare class AkumuliConfigCtrl {
     static templateUrl: string;
     current: any;

@@ -31,7 +31,7 @@ class AkumuliDatasource {
       return this.suggestTagKeys(components[0], "");
     } else if (len == 2) {
       // query tag values
-      return this.suggestTagValues(components[0], components[1], "");
+      return this.suggestTagValues(components[0], components[1], "", false);
     }
     throw { message: "Invalid query string (up too three components can be used)" };
   }
@@ -136,7 +136,7 @@ class AkumuliDatasource {
     });
   }
 
-  suggestTagValues(metric, tagName, valuePrefix) {
+  suggestTagValues(metric, tagName, valuePrefix, addTemplateVars) {
     tagName = tagName || "";
     valuePrefix = valuePrefix || "";
     var requestBody: any = {
@@ -166,6 +166,16 @@ class AkumuliDatasource {
           data.push({text: name, value: name});
         }
       });
+      // Include template variables (if any)
+      if (addTemplateVars) {
+        _.forEach(Object.keys(this.templateSrv.index), varName => {
+          var variable = this.templateSrv.index[varName];
+          if (variable.type == "query") {
+            var template = "$".concat(variable.name);
+            data.push({text: template, value: template});
+          }
+        });
+      }
       return data;
     });
   }

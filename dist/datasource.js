@@ -43,7 +43,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     }
                     else if (len == 2) {
                         // query tag values
-                        return this.suggestTagValues(components[0], components[1], "");
+                        return this.suggestTagValues(components[0], components[1], "", false);
                     }
                     throw { message: "Invalid query string (up too three components can be used)" };
                 };
@@ -140,7 +140,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                         return data;
                     });
                 };
-                AkumuliDatasource.prototype.suggestTagValues = function (metric, tagName, valuePrefix) {
+                AkumuliDatasource.prototype.suggestTagValues = function (metric, tagName, valuePrefix, addTemplateVars) {
+                    var _this = this;
                     tagName = tagName || "";
                     valuePrefix = valuePrefix || "";
                     var requestBody = {
@@ -169,6 +170,16 @@ System.register(['lodash', "moment"], function(exports_1) {
                                 data.push({ text: name, value: name });
                             }
                         });
+                        // Include template variables (if any)
+                        if (addTemplateVars) {
+                            lodash_1.default.forEach(Object.keys(_this.templateSrv.index), function (varName) {
+                                var variable = _this.templateSrv.index[varName];
+                                if (variable.type == "query") {
+                                    var template = "$".concat(variable.name);
+                                    data.push({ text: template, value: template });
+                                }
+                            });
+                        }
                         return data;
                     });
                 };

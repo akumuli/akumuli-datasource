@@ -57,7 +57,7 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                             .then(callback);
                     };
                     this.suggestTagValues = function (query, callback) {
-                        _this.datasource.suggestTagValues(_this.target.metric, _this.target.currentTagKey, _this.target.currentTagValue)
+                        _this.datasource.suggestTagValues(_this.target.metric, _this.target.currentTagKey, _this.target.currentTagValue, true)
                             .then(_this.getTextValues)
                             .then(callback);
                     };

@@ -1,72 +1,66 @@
-///<reference path="../../../headers/common.d.ts" />
-System.register(["lodash", "app/core/utils/kbn", "app/plugins/sdk"], function (exports_1, context_1) {
-    "use strict";
-    var __extends = (this && this.__extends) || (function () {
-        var extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return function (d, b) {
-            extendStatics(d, b);
-            function __() { this.constructor = d; }
-            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-        };
-    })();
-    var __moduleName = context_1 && context_1.id;
-    var lodash_1, kbn_1, sdk_1, AkumuliQueryCtrl;
+///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
+System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app/plugins/sdk'], function(exports_1) {
+    var __extends = (this && this.__extends) || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+    var lodash_1, kbn_1, sdk_1;
+    var AkumuliQueryCtrl;
     return {
-        setters: [
+        setters:[
             function (lodash_1_1) {
                 lodash_1 = lodash_1_1;
             },
             function (kbn_1_1) {
                 kbn_1 = kbn_1_1;
             },
+            function (_1) {},
             function (sdk_1_1) {
                 sdk_1 = sdk_1_1;
-            }
-        ],
-        execute: function () {///<reference path="../../../headers/common.d.ts" />
+            }],
+        execute: function() {
             AkumuliQueryCtrl = (function (_super) {
                 __extends(AkumuliQueryCtrl, _super);
                 /** @ngInject **/
                 function AkumuliQueryCtrl($scope, $injector) {
-                    var _this = _super.call(this, $scope, $injector) || this;
-                    _this.errors = _this.validateTarget();
-                    _this.aggregators = ['sum', 'min', 'max', 'mean', 'count'];
-                    _this.fillPolicies = ['none', 'nan', 'null', 'zero'];
-                    _this.filterTypes = ['wildcard', 'iliteral_or', 'not_iliteral_or', 'not_literal_or', 'iwildcard', 'literal_or', 'regexp'];
-                    _this.tsdbVersion = _this.datasource.tsdbVersion;
-                    if (!_this.target.aggregator) {
-                        _this.target.aggregator = 'sum';
+                    var _this = this;
+                    _super.call(this, $scope, $injector);
+                    this.errors = this.validateTarget();
+                    this.aggregators = ['sum', 'min', 'max', 'mean', 'count'];
+                    this.fillPolicies = ['none', 'nan', 'null', 'zero'];
+                    this.filterTypes = ['wildcard', 'iliteral_or', 'not_iliteral_or', 'not_literal_or', 'iwildcard', 'literal_or', 'regexp'];
+                    this.tsdbVersion = this.datasource.tsdbVersion;
+                    if (!this.target.aggregator) {
+                        this.target.aggregator = 'sum';
                     }
-                    if (!_this.target.downsampleAggregator) {
-                        _this.target.downsampleAggregator = 'mean';
+                    if (!this.target.downsampleAggregator) {
+                        this.target.downsampleAggregator = 'mean';
                     }
-                    if (!_this.target.downsampleFillPolicy) {
-                        _this.target.downsampleFillPolicy = 'none';
+                    if (!this.target.downsampleFillPolicy) {
+                        this.target.downsampleFillPolicy = 'none';
                     }
-                    _this.datasource.getAggregators().then(function (aggs) {
+                    this.datasource.getAggregators().then(function (aggs) {
                         if (aggs.length !== 0) {
                             _this.aggregators = aggs;
                         }
                     });
                     // needs to be defined here as it is called from typeahead
-                    _this.suggestMetrics = function (query, callback) {
-                        _this.datasource.metricFindQuery(query)
+                    this.suggestMetrics = function (query, callback) {
+                        _this.datasource.suggestMetricNames(query)
                             .then(_this.getTextValues)
                             .then(callback);
                     };
-                    _this.suggestTagKeys = function (query, callback) {
+                    this.suggestTagKeys = function (query, callback) {
                         _this.datasource.suggestTagKeys(_this.target.metric, _this.target.currentTagKey)
                             .then(_this.getTextValues)
                             .then(callback);
                     };
-                    _this.suggestTagValues = function (query, callback) {
-                        _this.datasource.suggestTagValues(_this.target.metric, _this.target.currentTagKey, _this.target.currentTagValue)
+                    this.suggestTagValues = function (query, callback) {
+                        _this.datasource.suggestTagValues(_this.target.metric, _this.target.currentTagKey, _this.target.currentTagValue, true)
                             .then(_this.getTextValues)
                             .then(callback);
                     };
-                    return _this;
                 }
                 AkumuliQueryCtrl.prototype.targetBlur = function () {
                     this.errors = this.validateTarget();
@@ -179,11 +173,11 @@ System.register(["lodash", "app/core/utils/kbn", "app/plugins/sdk"], function (e
                     }
                     return errs;
                 };
+                AkumuliQueryCtrl.templateUrl = 'partials/query.editor.html';
                 return AkumuliQueryCtrl;
-            }(sdk_1.QueryCtrl));
-            AkumuliQueryCtrl.templateUrl = 'partials/query.editor.html';
+            })(sdk_1.QueryCtrl);
             exports_1("AkumuliQueryCtrl", AkumuliQueryCtrl);
         }
-    };
+    }
 });
 //# sourceMappingURL=query_ctrl.js.map

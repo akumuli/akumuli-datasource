@@ -1,7 +1,8 @@
-///<reference path="../../../headers/common.d.ts" />
+///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 
 import _ from 'lodash';
 import kbn from 'app/core/utils/kbn';
+import './css/query_editor.css!';
 import {QueryCtrl} from 'app/plugins/sdk';
 
 export class AkumuliQueryCtrl extends QueryCtrl {
@@ -52,7 +53,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
 
     // needs to be defined here as it is called from typeahead
     this.suggestMetrics = (query, callback) => {
-      this.datasource.metricFindQuery(query)
+      this.datasource.suggestMetricNames(query)
       .then(this.getTextValues)
       .then(callback);
     };
@@ -64,7 +65,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     };
 
     this.suggestTagValues = (query, callback) => {
-      this.datasource.suggestTagValues(this.target.metric, this.target.currentTagKey, this.target.currentTagValue)
+      this.datasource.suggestTagValues(this.target.metric, this.target.currentTagKey, this.target.currentTagValue, true)
       .then(this.getTextValues)
       .then(callback);
     };

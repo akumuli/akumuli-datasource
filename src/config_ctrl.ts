@@ -1,10 +1,8 @@
-///<reference path="../../../headers/common.d.ts" />
-
-import angular from 'angular';
-import _ from 'lodash';
+///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 
 export class AkumuliConfigCtrl {
-  static templateUrl = 'public/plugins/akumuli-datasource/partials/config.html';
+  //static templateUrl = 'public/plugins/akumuli-datasource/partials/config.html';
+  static templateUrl = 'partials/config.html';
   current: any;
 
   /** @ngInject */

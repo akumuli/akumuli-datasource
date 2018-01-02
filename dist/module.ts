@@ -10,5 +10,5 @@ export {
   AkumuliDatasource as Datasource,
   AkumuliQueryCtrl as QueryCtrl,
   AkumuliConfigCtrl as ConfigCtrl,
-  AnnotationsQueryCtrl as AnnotationsQueryCtrl
+  AnnotationsQueryCtrl as AnnotationsQueryCtrl,
 };

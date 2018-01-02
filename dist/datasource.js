@@ -1,23 +1,22 @@
-///<reference path="../../../headers/common.d.ts" />
-System.register(["lodash", "moment"], function (exports_1, context_1) {
-    "use strict";
-    var __moduleName = context_1 && context_1.id;
-    var lodash_1, moment_1, AkumuliDatasource;
+///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
+System.register(['lodash', "moment"], function(exports_1) {
+    var lodash_1, moment_1;
+    var AkumuliDatasource;
     return {
-        setters: [
+        setters:[
             function (lodash_1_1) {
                 lodash_1 = lodash_1_1;
             },
             function (moment_1_1) {
                 moment_1 = moment_1_1;
-            }
-        ],
-        execute: function () {///<reference path="../../../headers/common.d.ts" />
+            }],
+        execute: function() {
             AkumuliDatasource = (function () {
                 /** @ngInject */
-                function AkumuliDatasource(instanceSettings, backendSrv, $q) {
+                function AkumuliDatasource(instanceSettings, backendSrv, templateSrv, $q) {
                     this.instanceSettings = instanceSettings;
                     this.backendSrv = backendSrv;
+                    this.templateSrv = templateSrv;
                     this.$q = $q;
                 }
                 /** Test that datasource connection works */
@@ -31,7 +30,24 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         return { status: "success", message: "Data source is working", title: "Success" };
                     });
                 };
-                AkumuliDatasource.prototype.metricFindQuery = function (metricName) {
+                AkumuliDatasource.prototype.metricFindQuery = function (queryString) {
+                    var components = queryString.split(" ");
+                    var len = components.length;
+                    if (len == 0) {
+                        // query metric names
+                        return this.suggestMetricNames("");
+                    }
+                    else if (len == 1) {
+                        // query tag names
+                        return this.suggestTagKeys(components[0], "");
+                    }
+                    else if (len == 2) {
+                        // query tag values
+                        return this.suggestTagValues(components[0], components[1], "", false);
+                    }
+                    throw { message: "Invalid query string (up too three components can be used)" };
+                };
+                AkumuliDatasource.prototype.suggestMetricNames = function (metricName) {
                     var requestBody = {
                         select: "metric-names",
                         "starts-with": metricName
@@ -124,7 +140,8 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         return data;
                     });
                 };
-                AkumuliDatasource.prototype.suggestTagValues = function (metric, tagName, valuePrefix) {
+                AkumuliDatasource.prototype.suggestTagValues = function (metric, tagName, valuePrefix, addTemplateVars) {
+                    var _this = this;
                     tagName = tagName || "";
                     valuePrefix = valuePrefix || "";
                     var requestBody = {
@@ -153,6 +170,16 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                                 data.push({ text: name, value: name });
                             }
                         });
+                        // Include template variables (if any)
+                        if (addTemplateVars) {
+                            lodash_1.default.forEach(Object.keys(_this.templateSrv.index), function (varName) {
+                                var variable = _this.templateSrv.index[varName];
+                                if (variable.type == "query") {
+                                    var template = "$".concat(variable.name);
+                                    data.push({ text: template, value: template });
+                                }
+                            });
+                        }
                         return data;
                     });
                 };
@@ -164,7 +191,14 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                     // Extract tags from results and run 'select' query
                     // nomrally.
                     var metricName = target.metric;
-                    var tags = target.tags;
+                    var tags = {};
+                    if (target.tags) {
+                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                            var value = target.tags[key];
+                            value = _this.templateSrv.replace(value);
+                            tags[key] = value;
+                        });
+                    }
                     var isTop = target.topN ? true : false;
                     var topN = target.topN;
                     if (!isTop) {
@@ -186,7 +220,6 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         data: query
                     };
                     return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
-                        var data = [];
                         if (res.status === 'error') {
                             throw res.error;
                         }
@@ -196,10 +229,6 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         var lines = res.data.split("\r\n");
                         var index = 0;
                         var series = null;
-                        var timestamp = null;
-                        var value = 0.0;
-                        var datapoints = [];
-                        var currentTarget = null;
                         var series_names = [];
                         lodash_1.default.forEach(lines, function (line) {
                             var step = index % 3;
@@ -225,8 +254,22 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                 };
                 /** Query time-series storage */
                 AkumuliDatasource.prototype.groupAggregateTargetQuery = function (begin, end, interval, limit, target) {
+                    var _this = this;
                     var metricName = target.metric;
-                    var tags = target.tags;
+                    var tags = {};
+                    if (target.tags) {
+                        if (target.tags instanceof Array) {
+                            // Special case, TopN query is processed
+                            tags = target.tags;
+                        }
+                        else {
+                            lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                                var value = target.tags[key];
+                                value = _this.templateSrv.replace(value);
+                                tags[key] = value;
+                            });
+                        }
+                    }
                     var aggFunc = target.downsampleAggregator;
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
@@ -254,7 +297,7 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                     var httpRequest = {
                         method: "POST",
                         url: this.instanceSettings.url + "/api/query",
-                        data: query
+                        data: query,
                     };
                     // Read the actual data and process it
                     return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
@@ -324,7 +367,14 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                     // Extract tags from results and run 'select' query
                     // nomrally.
                     var metricName = target.metric;
-                    var tags = target.tags;
+                    var tags = {};
+                    if (target.tags) {
+                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                            var value = target.tags[key];
+                            value = _this.templateSrv.replace(value);
+                            tags[key] = value;
+                        });
+                    }
                     var isTop = target.topN ? true : false;
                     var topN = target.topN;
                     if (!isTop) {
@@ -346,7 +396,6 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         data: query
                     };
                     return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
-                        var data = [];
                         if (res.status === 'error') {
                             throw res.error;
                         }
@@ -356,10 +405,6 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                         var lines = res.data.split("\r\n");
                         var index = 0;
                         var series = null;
-                        var timestamp = null;
-                        var value = 0.0;
-                        var datapoints = [];
-                        var currentTarget = null;
                         var series_names = [];
                         lodash_1.default.forEach(lines, function (line) {
                             var step = index % 3;
@@ -384,8 +429,22 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                 };
                 /** Query time-series storage */
                 AkumuliDatasource.prototype.selectTargetQuery = function (begin, end, limit, target) {
+                    var _this = this;
                     var metricName = target.metric;
-                    var tags = target.tags;
+                    var tags = {};
+                    if (target.tags) {
+                        if (target.tags instanceof Array) {
+                            // Special case, TopN query is processed
+                            tags = target.tags;
+                        }
+                        else {
+                            lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                                var value = target.tags[key];
+                                value = _this.templateSrv.replace(value);
+                                tags[key] = value;
+                            });
+                        }
+                    }
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
                     var decay = target.decay || 0.5;
@@ -502,9 +561,9 @@ System.register(["lodash", "moment"], function (exports_1, context_1) {
                     });
                 };
                 return AkumuliDatasource;
-            }());
+            })();
             exports_1("AkumuliDatasource", AkumuliDatasource);
         }
-    };
+    }
 });
 //# sourceMappingURL=datasource.js.map

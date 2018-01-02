@@ -4,15 +4,15 @@
   "id": "akumuli-datasource",
 
   "metrics": true,
-  "defaultMatchFormat": "pipe",
-  "annotations": true,
+  "annotations": false,
   "alerting": true,
 
   "info": {
     "version": "1.0.3",
+    "updated": "2018-01-01",
     "description": "Datasource plugin for Akumuli time-series database",
     "author": {
-      "name": "Akumuli Authors",
+      "name": "Eugene Lazin",
       "url": "https://akumuli.org"
     },
     "logos": {
@@ -25,10 +25,13 @@
       "time series",
       "timeseries",
       "time-series"
+    ],
+    "links": [
+      {"name": "Project site", "url": "https://github.com/akumuli/Akumuli"}
     ]
   },
   "dependencies": {
-    "grafanaVersion": "4.x.x",
-    "plugins": []
+    "grafanaVersion": "4.5.x",
+    "plugins": [ ]
   }
 }

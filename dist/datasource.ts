@@ -534,6 +534,11 @@ class AkumuliDatasource {
     var interval = options.interval;
     var limit    = options.maxDataPoints;  // TODO: don't ignore the limit
     var allQueryPromise = _.map(options.targets, target => {
+      if (target.hide === true) {
+        return new Promise((resolve, reject) => {
+          resolve([]);
+        });
+      }
       var disableDownsampling = target.disableDownsampling;
       var isTop = target.topN ? true : false;
       if (disableDownsampling) {

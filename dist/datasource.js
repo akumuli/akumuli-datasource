@@ -535,6 +535,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var interval = options.interval;
                     var limit = options.maxDataPoints; // TODO: don't ignore the limit
                     var allQueryPromise = lodash_1.default.map(options.targets, function (target) {
+                        if (target.hide === true) {
+                            return new Promise(function (resolve, reject) {
+                                resolve([]);
+                            });
+                        }
                         var disableDownsampling = target.disableDownsampling;
                         var isTop = target.topN ? true : false;
                         if (disableDownsampling) {

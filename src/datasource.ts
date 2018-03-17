@@ -245,7 +245,8 @@ class AkumuliDatasource {
         shouldComputeRate: target.shouldComputeRate,
         shouldEWMA: target.shouldEWMA,
         decay: target.decay,
-        downsampleAggregator: target.downsampleAggregator
+        downsampleAggregator: target.downsampleAggregator,
+        downsampleInterval: target.downsampleInterval,
       };
       return this.groupAggregateTargetQuery(begin, end, interval, limit, newTarget);
     });
@@ -270,10 +271,11 @@ class AkumuliDatasource {
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
+    var samplingInterval = target.downsampleInterval || interval
     var query: any = {
       "group-aggregate": {
         metric: metricName,
-        step: interval,
+        step: samplingInterval,
         func: [ aggFunc ]
       },
       range: {

@@ -247,7 +247,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                             shouldComputeRate: target.shouldComputeRate,
                             shouldEWMA: target.shouldEWMA,
                             decay: target.decay,
-                            downsampleAggregator: target.downsampleAggregator
+                            downsampleAggregator: target.downsampleAggregator,
+                            downsampleInterval: target.downsampleInterval,
                         };
                         return _this.groupAggregateTargetQuery(begin, end, interval, limit, newTarget);
                     });
@@ -274,10 +275,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
                     var decay = target.decay || 0.5;
+                    var samplingInterval = target.downsampleInterval || interval;
                     var query = {
                         "group-aggregate": {
                             metric: metricName,
-                            step: interval,
+                            step: samplingInterval,
                             func: [aggFunc]
                         },
                         range: {

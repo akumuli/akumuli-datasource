@@ -36,6 +36,30 @@ class AkumuliDatasource {
     throw { message: "Invalid query string (up too three components can be used)" };
   }
 
+  suggestAlias(metric, query) {
+    query = query || "";
+    var ix = query.lastIndexOf("$");
+    var fixed : string;
+    var variable : string;
+    if (ix >= 0) {
+      fixed = query.substr(0, ix+1);
+      variable = query.substr(ix+1);
+    } else {
+      fixed = "$";
+      variable = query;
+    }
+    return this.suggestTagKeys(metric, variable).then( res => {
+      var data = [];
+      _.forEach(res, dot => {
+        if (dot) {
+          var name = fixed + dot.text;
+          data.push({text: name, value: name});
+        }
+      });
+      return data;
+    });
+  }
+
   suggestMetricNames(metricName) {
     var requestBody: any = {
       select: "metric-names",

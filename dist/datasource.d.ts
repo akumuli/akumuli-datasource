@@ -9,6 +9,7 @@ declare class AkumuliDatasource {
     /** Test that datasource connection works */
     testDatasource(): any;
     metricFindQuery(queryString: any): any;
+    suggestAlias(metric: any, query: any): any;
     suggestMetricNames(metricName: any): any;
     /** Parse series name in a canonical form */
     extractTags(names: any): any[];

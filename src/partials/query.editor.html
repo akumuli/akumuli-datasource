@@ -8,12 +8,35 @@
 				</label>
 			</label>
 			<input type="text" class="gf-form-input" ng-model="ctrl.target.metric"
-						 spellcheck='false' bs-typeahead="ctrl.suggestMetrics" placeholder="metric name" data-min-length=0 data-items=100
+						spellcheck='false' bs-typeahead="ctrl.suggestMetrics" placeholder="metric name" data-min-length=0 data-items=100
 						ng-blur="ctrl.targetBlur()">
 			</input>
 		</div>
 
-	    <div class="gf-form max-width-15">
+		<div class="gf-form max-width-25">
+			<label class="gf-form-label query-keyword width-8">
+				Alias
+				<label class="gf-form-label" 
+					   bs-tooltip="ctrl.errors.metric" 
+					   style="color: rgb(229, 189, 28)" 
+					   ng-show="ctrl.errors.metric">
+					<i class="fa fa-warning"></i>
+				</label>
+			</label>
+			<input type="text" class="gf-form-input" 
+						ng-model="ctrl.target.alias"
+						spellcheck='false' 
+						bs-typeahead="ctrl.suggestAlias" 
+						placeholder="alias" 
+						data-min-length=0 
+						data-items=100
+						ng-blur="ctrl.targetBlur()">
+			</input>
+		</div>
+	</div>
+
+	<div class="gf-form-inline">
+	    <div class="gf-form max-width-25">
 			<label class="gf-form-label query-keyword">Top-N</label>
 			<input type="text" class="gf-form-input"
 						 ng-model="ctrl.target.topN"

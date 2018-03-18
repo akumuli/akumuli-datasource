@@ -47,6 +47,32 @@ System.register(['lodash', "moment"], function(exports_1) {
                     }
                     throw { message: "Invalid query string (up too three components can be used)" };
                 };
+                AkumuliDatasource.prototype.suggestAlias = function (metric, query) {
+                    query = query || "";
+                    var ix = query.lastIndexOf("$");
+                    var fixed;
+                    var variable;
+                    if (ix >= 0) {
+                        fixed = query.substr(0, ix + 1);
+                        variable = query.substr(ix + 1);
+                        console.log("case 1 %s %s", fixed, variable);
+                    }
+                    else {
+                        fixed = "$";
+                        variable = query;
+                        console.log("case 2 %s %s", fixed, variable);
+                    }
+                    return this.suggestTagKeys(metric, variable).then(function (res) {
+                        var data = [];
+                        lodash_1.default.forEach(res, function (dot) {
+                            if (dot) {
+                                var name = fixed + dot.text;
+                                data.push({ text: name, value: name });
+                            }
+                        });
+                        return data;
+                    });
+                };
                 AkumuliDatasource.prototype.suggestMetricNames = function (metricName) {
                     var requestBody = {
                         select: "metric-names",

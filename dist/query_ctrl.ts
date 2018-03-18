@@ -19,6 +19,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
   suggestMetrics: any;
   suggestTagKeys: any;
   suggestTagValues: any;
+  suggestAlias: any;
   addTagMode: boolean;
   addFilterMode: boolean;
 
@@ -54,6 +55,13 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     // needs to be defined here as it is called from typeahead
     this.suggestMetrics = (query, callback) => {
       this.datasource.suggestMetricNames(query)
+      .then(this.getTextValues)
+      .then(callback);
+    };
+
+    this.suggestAlias = (query, callback) => {
+      console.log("suggestAlias 1");
+      this.datasource.suggestAlias(this.target.metric, this.target.alias)
       .then(this.getTextValues)
       .then(callback);
     };
@@ -121,68 +129,6 @@ export class AkumuliQueryCtrl extends QueryCtrl {
 
   closeAddTagMode() {
     this.addTagMode = false;
-    return;
-  }
-
-  addFilter() {
-
-    if (this.target.tags && _.size(this.target.tags) > 0) {
-      this.errors.filters = "Please remove tags to use filters, tags and filters are mutually exclusive.";
-    }
-
-    if (!this.addFilterMode) {
-      this.addFilterMode = true;
-      return;
-    }
-
-    if (!this.target.filters) {
-      this.target.filters = [];
-    }
-
-    if (!this.target.currentFilterType) {
-      this.target.currentFilterType = 'iliteral_or';
-    }
-
-    if (!this.target.currentFilterGroupBy) {
-      this.target.currentFilterGroupBy = false;
-    }
-
-    this.errors = this.validateTarget();
-
-    if (!this.errors.filters) {
-      var currentFilter = {
-        type:    this.target.currentFilterType,
-        tagk:     this.target.currentFilterKey,
-        filter:   this.target.currentFilterValue,
-        groupBy: this.target.currentFilterGroupBy
-      };
-      this.target.filters.push(currentFilter);
-      this.target.currentFilterType = 'literal_or';
-      this.target.currentFilterKey = '';
-      this.target.currentFilterValue = '';
-      this.target.currentFilterGroupBy = false;
-      this.targetBlur();
-    }
-
-    this.addFilterMode = false;
-  }
-
-  removeFilter(index) {
-    this.target.filters.splice(index, 1);
-    this.targetBlur();
-  }
-
-  editFilter(fil, index) {
-    this.removeFilter(index);
-    this.target.currentFilterKey = fil.tagk;
-    this.target.currentFilterValue = fil.filter;
-    this.target.currentFilterType = fil.type;
-    this.target.currentFilterGroupBy = fil.groupBy;
-    this.addFilter();
-  }
-
-  closeAddFilterMode() {
-    this.addFilterMode = false;
     return;
   }
 

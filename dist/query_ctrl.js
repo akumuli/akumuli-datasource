@@ -51,6 +51,12 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                             .then(_this.getTextValues)
                             .then(callback);
                     };
+                    this.suggestAlias = function (query, callback) {
+                        console.log("suggestAlias 1");
+                        _this.datasource.suggestAlias(_this.target.metric, _this.target.alias)
+                            .then(_this.getTextValues)
+                            .then(callback);
+                    };
                     this.suggestTagKeys = function (query, callback) {
                         _this.datasource.suggestTagKeys(_this.target.metric, _this.target.currentTagKey)
                             .then(_this.getTextValues)
@@ -101,56 +107,6 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                 };
                 AkumuliQueryCtrl.prototype.closeAddTagMode = function () {
                     this.addTagMode = false;
-                    return;
-                };
-                AkumuliQueryCtrl.prototype.addFilter = function () {
-                    if (this.target.tags && lodash_1.default.size(this.target.tags) > 0) {
-                        this.errors.filters = "Please remove tags to use filters, tags and filters are mutually exclusive.";
-                    }
-                    if (!this.addFilterMode) {
-                        this.addFilterMode = true;
-                        return;
-                    }
-                    if (!this.target.filters) {
-                        this.target.filters = [];
-                    }
-                    if (!this.target.currentFilterType) {
-                        this.target.currentFilterType = 'iliteral_or';
-                    }
-                    if (!this.target.currentFilterGroupBy) {
-                        this.target.currentFilterGroupBy = false;
-                    }
-                    this.errors = this.validateTarget();
-                    if (!this.errors.filters) {
-                        var currentFilter = {
-                            type: this.target.currentFilterType,
-                            tagk: this.target.currentFilterKey,
-                            filter: this.target.currentFilterValue,
-                            groupBy: this.target.currentFilterGroupBy
-                        };
-                        this.target.filters.push(currentFilter);
-                        this.target.currentFilterType = 'literal_or';
-                        this.target.currentFilterKey = '';
-                        this.target.currentFilterValue = '';
-                        this.target.currentFilterGroupBy = false;
-                        this.targetBlur();
-                    }
-                    this.addFilterMode = false;
-                };
-                AkumuliQueryCtrl.prototype.removeFilter = function (index) {
-                    this.target.filters.splice(index, 1);
-                    this.targetBlur();
-                };
-                AkumuliQueryCtrl.prototype.editFilter = function (fil, index) {
-                    this.removeFilter(index);
-                    this.target.currentFilterKey = fil.tagk;
-                    this.target.currentFilterValue = fil.filter;
-                    this.target.currentFilterType = fil.type;
-                    this.target.currentFilterGroupBy = fil.groupBy;
-                    this.addFilter();
-                };
-                AkumuliQueryCtrl.prototype.closeAddFilterMode = function () {
-                    this.addFilterMode = false;
                     return;
                 };
                 AkumuliQueryCtrl.prototype.validateTarget = function () {

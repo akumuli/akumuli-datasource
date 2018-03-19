@@ -60,7 +60,6 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     };
 
     this.suggestAlias = (query, callback) => {
-      console.log("suggestAlias 1");
       this.datasource.suggestAlias(this.target.metric, this.target.alias)
       .then(this.getTextValues)
       .then(callback);

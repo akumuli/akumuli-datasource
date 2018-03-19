@@ -112,6 +112,18 @@ class AkumuliDatasource {
     return where;
   }
 
+  // Convert series name into alias using the alias template
+  convertSeriesName(template: string, name: string) {
+    // Parse the template
+    var dict = this.extractTags([name])[0];
+    var result = template;
+    for (let key in dict) {
+      var value = dict[key];
+      result = result.replace("$" + key, value);
+    }
+    return result;
+  }
+
   annotationQuery(options) {
     return this.backendSrv.get('/api/annotations', {
       from: options.range.from.valueOf(),
@@ -291,6 +303,7 @@ class AkumuliDatasource {
         });
       }
     }
+    var alias = target.alias;
     var aggFunc = target.downsampleAggregator;
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
@@ -378,6 +391,11 @@ class AkumuliDatasource {
           target: currentTarget,
           datapoints: datapoints
         });
+      }
+      if (alias) {
+        for (var i = 0; i < data.length; i++) {
+          data[i].target = this.convertSeriesName(alias, data[i].target);
+        }
       }
       return data;
     });
@@ -469,6 +487,7 @@ class AkumuliDatasource {
         });
       }
     }
+    var alias = target.alias;
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
@@ -546,6 +565,11 @@ class AkumuliDatasource {
           target: currentTarget,
           datapoints: datapoints
         });
+      }
+      if (alias) {
+        for (var i = 0; i < data.length; i++) {
+          data[i].target = this.convertSeriesName(alias, data[i].target);
+        }
       }
       return data;
     });

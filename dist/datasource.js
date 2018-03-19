@@ -55,12 +55,10 @@ System.register(['lodash', "moment"], function(exports_1) {
                     if (ix >= 0) {
                         fixed = query.substr(0, ix + 1);
                         variable = query.substr(ix + 1);
-                        console.log("case 1 %s %s", fixed, variable);
                     }
                     else {
                         fixed = "$";
                         variable = query;
-                        console.log("case 2 %s %s", fixed, variable);
                     }
                     return this.suggestTagKeys(metric, variable).then(function (res) {
                         var data = [];
@@ -121,6 +119,17 @@ System.register(['lodash', "moment"], function(exports_1) {
                         where.push(tagset);
                     });
                     return where;
+                };
+                // Convert series name into alias using the alias template
+                AkumuliDatasource.prototype.convertSeriesName = function (template, name) {
+                    // Parse the template
+                    var dict = this.extractTags([name])[0];
+                    var result = template;
+                    for (var key in dict) {
+                        var value = dict[key];
+                        result = result.replace("$" + key, value);
+                    }
+                    return result;
                 };
                 AkumuliDatasource.prototype.annotationQuery = function (options) {
                     return this.backendSrv.get('/api/annotations', {
@@ -297,6 +306,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             });
                         }
                     }
+                    var alias = target.alias;
                     var aggFunc = target.downsampleAggregator;
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
@@ -383,6 +393,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                                 target: currentTarget,
                                 datapoints: datapoints
                             });
+                        }
+                        if (alias) {
+                            for (var i = 0; i < data.length; i++) {
+                                data[i].target = _this.convertSeriesName(alias, data[i].target);
+                            }
                         }
                         return data;
                     });
@@ -473,6 +488,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             });
                         }
                     }
+                    var alias = target.alias;
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
                     var decay = target.decay || 0.5;
@@ -550,6 +566,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                                 target: currentTarget,
                                 datapoints: datapoints
                             });
+                        }
+                        if (alias) {
+                            for (var i = 0; i < data.length; i++) {
+                                data[i].target = _this.convertSeriesName(alias, data[i].target);
+                            }
                         }
                         return data;
                     });

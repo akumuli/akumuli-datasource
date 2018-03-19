@@ -52,7 +52,6 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                             .then(callback);
                     };
                     this.suggestAlias = function (query, callback) {
-                        console.log("suggestAlias 1");
                         _this.datasource.suggestAlias(_this.target.metric, _this.target.alias)
                             .then(_this.getTextValues)
                             .then(callback);

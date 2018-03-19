@@ -13,6 +13,7 @@ declare class AkumuliDatasource {
     suggestMetricNames(metricName: any): any;
     /** Parse series name in a canonical form */
     extractTags(names: any): any[];
+    convertSeriesName(template: string, name: string): string;
     annotationQuery(options: any): any;
     getAggregators(): Promise<{}>;
     suggestTagKeys(metric: any, tagPrefix: any): any;

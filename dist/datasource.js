@@ -330,7 +330,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                         query["apply"].push({ name: "rate" });
                     }
                     if (ewma) {
-                        query["apply"].push({ name: "ewma-error", decay: decay });
+                        query["apply"].push({ name: "ewma", decay: decay });
                     }
                     var httpRequest = {
                         method: "POST",
@@ -506,7 +506,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                         query["apply"].push({ name: "rate" });
                     }
                     if (ewma) {
-                        query["apply"].push({ name: "ewma-error", decay: decay });
+                        query["apply"].push({ name: "ewma", decay: decay });
                     }
                     var httpRequest = {
                         method: "POST",

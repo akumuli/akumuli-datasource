@@ -327,7 +327,7 @@ class AkumuliDatasource {
       query["apply"].push({name: "rate"});
     }
     if (ewma) {
-      query["apply"].push({name: "ewma-error", decay: decay});
+      query["apply"].push({name: "ewma", decay: decay});
     }
 
     var httpRequest: any = {
@@ -505,7 +505,7 @@ class AkumuliDatasource {
       query["apply"].push({name: "rate"});
     }
     if (ewma) {
-      query["apply"].push({name: "ewma-error", decay: decay});
+      query["apply"].push({name: "ewma", decay: decay});
     }
     var httpRequest: any = {
       method: "POST",

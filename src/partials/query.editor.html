@@ -33,11 +33,14 @@
 						ng-blur="ctrl.targetBlur()">
 			</input>
 		</div>
+		<div class="gf-form gf-form--grow">
+			<div class="gf-form-label gf-form-label--grow"></div>
+		</div>
 	</div>
 
 	<div class="gf-form-inline">
 	    <div class="gf-form max-width-25">
-			<label class="gf-form-label query-keyword">Top-N</label>
+			<label class="gf-form-label query-keyword width-8">Top-N</label>
 			<input type="text" class="gf-form-input"
 						 ng-model="ctrl.target.topN"
 						 ng-model-onblur
@@ -46,6 +49,9 @@
 			<info-popover mode="right-absolute">
 				blank to disable, or for example <code>5</code>
 			</info-popover>
+		</div>
+		<div class="gf-form gf-form--grow">
+			<div class="gf-form-label gf-form-label--grow"></div>
 		</div>
 	</div>
 
@@ -87,7 +93,8 @@
 		</gf-form-switch>
 		-->
 
-	    <gf-form-switch class="gf-form" label="EWMA" label-class="width-6 query-keyword" checked="ctrl.target.shouldEWMA" on-change="ctrl.targetBlur()">
+		<!--
+	    <gf-form-switch class="gf-form" label="EWMA Smoothing" label-class="width-6 query-keyword" checked="ctrl.target.shouldEWMA" on-change="ctrl.targetBlur()">
 		</gf-form-switch>
 	    <div class="gf-form max-width-25" ng-hide="!ctrl.target.shouldEWMA">
 			<label class="gf-form-label query-keyword width-8">Decay</label>
@@ -100,7 +107,7 @@
 				blank for auto, or for example <code>0.5</code>
 			</info-popover>
 		</div>
-
+		-->
 		<div class="gf-form gf-form--grow">
 			<div class="gf-form-label gf-form-label--grow"></div>
 		</div>

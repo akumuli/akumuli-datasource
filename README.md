@@ -2,7 +2,7 @@
 
 This is a datasource plugin for Grafana that can be used to visualize data from the [Akumuli](https://github.com/akumuli/Akumuli) time-series database. 
 
-![Grafana dashboard](/akumuli.grafana.png)
+![Grafana dashboard](https://raw.githubusercontent.com/akumuli/akumuli-datasource/master/akumuli.grafana.png)
 
 Supported features of the datasource:
 

@@ -7,11 +7,12 @@ This is a datasource plugin for Grafana that can be used to visualize data from 
 Supported features of the datasource:
 
 - Native downsampling using one of the supported functions (avg, min, max, etc).
-- Query data in the original form (without downampling).
+- Query data in the original form (without downsampling).
 - Rate calculation for counters.
-- Simple anomaly detection using EWMA prediction (it's easy to set up and works great with Grafana's alerts).
 - Top-N query support.
 - Autocomplete for metric names, tag names and values for easier discovery.
+- Aliases for series names (with autocomplete).
+- Templating support.
 
 Other Akumuli functions and aggregations will be added in the future.
 
@@ -19,7 +20,6 @@ Other Akumuli functions and aggregations will be added in the future.
 
 To install the plugin simply clone this repository to your Grafana's plugins directory. It's located at `{grafana}/data/plugins`.
 
-This plugin is based on OpenTSDB datasource plugin.
 
 ## How to build
 
@@ -29,3 +29,5 @@ The repository already contains /dist directory with build artefacts so you don'
 - npm run build
 
 This will fetch depnedencies and run the build script.
+
+This plugin is based on OpenTSDB datasource plugin.

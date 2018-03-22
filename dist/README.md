@@ -2,16 +2,17 @@
 
 This is a datasource plugin for Grafana that can be used to visualize data from the [Akumuli](https://github.com/akumuli/Akumuli) time-series database. 
 
-![Grafana dashboard](/akumuli.grafana.png)
+![Grafana dashboard](https://raw.githubusercontent.com/akumuli/akumuli-datasource/master/akumuli.grafana.png)
 
 Supported features of the datasource:
 
 - Native downsampling using one of the supported functions (avg, min, max, etc).
-- Query data in the original form (without downampling).
+- Query data in the original form (without downsampling).
 - Rate calculation for counters.
-- Simple anomaly detection using EWMA prediction (it's easy to set up and works great with Grafana's alerts).
 - Top-N query support.
 - Autocomplete for metric names, tag names and values for easier discovery.
+- Aliases for series names (with autocomplete).
+- Templating support.
 
 Other Akumuli functions and aggregations will be added in the future.
 
@@ -19,7 +20,11 @@ Other Akumuli functions and aggregations will be added in the future.
 
 To install the plugin simply clone this repository to your Grafana's plugins directory. It's located at `{grafana}/data/plugins`.
 
-This plugin is based on OpenTSDB datasource plugin.
+## Templating
+
+The datasource supports templating feature. The only supported variable type is "Query". The query format is the following: `<metric-name> <tag-name>`. For instance, if you want to fetch the list of hosts from the database and you have the metric name called `state` and the host names are encoded using the `endpoint` tag, you can careate the variable with name "Endpoint" and query string `state endpoint`. After that you can create a dashboard and use the name `$Endpoint` instead of the actual address.
+
+![Template variable creation](https://raw.githubusercontent.com/akumuli/akumuli-datasource/master/create_template.png)
 
 ## How to build
 
@@ -29,3 +34,5 @@ The repository already contains /dist directory with build artefacts so you don'
 - npm run build
 
 This will fetch depnedencies and run the build script.
+
+This plugin is based on OpenTSDB datasource plugin.

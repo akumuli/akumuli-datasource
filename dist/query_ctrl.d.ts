@@ -14,6 +14,7 @@ export declare class AkumuliQueryCtrl extends QueryCtrl {
     suggestMetrics: any;
     suggestTagKeys: any;
     suggestTagValues: any;
+    suggestAlias: any;
     addTagMode: boolean;
     addFilterMode: boolean;
     /** @ngInject **/
@@ -24,9 +25,5 @@ export declare class AkumuliQueryCtrl extends QueryCtrl {
     removeTag(key: any): void;
     editTag(key: any, value: any): void;
     closeAddTagMode(): void;
-    addFilter(): void;
-    removeFilter(index: any): void;
-    editFilter(fil: any, index: any): void;
-    closeAddFilterMode(): void;
     validateTarget(): any;
 }

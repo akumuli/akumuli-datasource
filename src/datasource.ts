@@ -36,6 +36,30 @@ class AkumuliDatasource {
     throw { message: "Invalid query string (up too three components can be used)" };
   }
 
+  suggestAlias(metric, query) {
+    query = query || "";
+    var ix = query.lastIndexOf("$");
+    var fixed : string;
+    var variable : string;
+    if (ix >= 0) {
+      fixed = query.substr(0, ix+1);
+      variable = query.substr(ix+1);
+    } else {
+      fixed = "$";
+      variable = query;
+    }
+    return this.suggestTagKeys(metric, variable).then( res => {
+      var data = [];
+      _.forEach(res, dot => {
+        if (dot) {
+          var name = fixed + dot.text;
+          data.push({text: name, value: name});
+        }
+      });
+      return data;
+    });
+  }
+
   suggestMetricNames(metricName) {
     var requestBody: any = {
       select: "metric-names",
@@ -86,6 +110,18 @@ class AkumuliDatasource {
       where.push(tagset);
     });
     return where;
+  }
+
+  // Convert series name into alias using the alias template
+  convertSeriesName(template: string, name: string) {
+    // Parse the template
+    var dict = this.extractTags([name])[0];
+    var result = template;
+    for (let key in dict) {
+      var value = dict[key];
+      result = result.replace("$" + key, value);
+    }
+    return result;
   }
 
   annotationQuery(options) {
@@ -245,7 +281,8 @@ class AkumuliDatasource {
         shouldComputeRate: target.shouldComputeRate,
         shouldEWMA: target.shouldEWMA,
         decay: target.decay,
-        downsampleAggregator: target.downsampleAggregator
+        downsampleAggregator: target.downsampleAggregator,
+        downsampleInterval: target.downsampleInterval,
       };
       return this.groupAggregateTargetQuery(begin, end, interval, limit, newTarget);
     });
@@ -266,14 +303,16 @@ class AkumuliDatasource {
         });
       }
     }
+    var alias = target.alias;
     var aggFunc = target.downsampleAggregator;
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
+    var samplingInterval = target.downsampleInterval || interval
     var query: any = {
       "group-aggregate": {
         metric: metricName,
-        step: interval,
+        step: samplingInterval,
         func: [ aggFunc ]
       },
       range: {
@@ -288,7 +327,7 @@ class AkumuliDatasource {
       query["apply"].push({name: "rate"});
     }
     if (ewma) {
-      query["apply"].push({name: "ewma-error", decay: decay});
+      query["apply"].push({name: "ewma", decay: decay});
     }
 
     var httpRequest: any = {
@@ -352,6 +391,11 @@ class AkumuliDatasource {
           target: currentTarget,
           datapoints: datapoints
         });
+      }
+      if (alias) {
+        for (var i = 0; i < data.length; i++) {
+          data[i].target = this.convertSeriesName(alias, data[i].target);
+        }
       }
       return data;
     });
@@ -443,6 +487,7 @@ class AkumuliDatasource {
         });
       }
     }
+    var alias = target.alias;
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
@@ -460,7 +505,7 @@ class AkumuliDatasource {
       query["apply"].push({name: "rate"});
     }
     if (ewma) {
-      query["apply"].push({name: "ewma-error", decay: decay});
+      query["apply"].push({name: "ewma", decay: decay});
     }
     var httpRequest: any = {
       method: "POST",
@@ -521,6 +566,11 @@ class AkumuliDatasource {
           datapoints: datapoints
         });
       }
+      if (alias) {
+        for (var i = 0; i < data.length; i++) {
+          data[i].target = this.convertSeriesName(alias, data[i].target);
+        }
+      }
       return data;
     });
   }
@@ -532,6 +582,11 @@ class AkumuliDatasource {
     var interval = options.interval;
     var limit    = options.maxDataPoints;  // TODO: don't ignore the limit
     var allQueryPromise = _.map(options.targets, target => {
+      if (target.hide === true) {
+        return new Promise((resolve, reject) => {
+          resolve([]);
+        });
+      }
       var disableDownsampling = target.disableDownsampling;
       var isTop = target.topN ? true : false;
       if (disableDownsampling) {

@@ -47,6 +47,30 @@ System.register(['lodash', "moment"], function(exports_1) {
                     }
                     throw { message: "Invalid query string (up too three components can be used)" };
                 };
+                AkumuliDatasource.prototype.suggestAlias = function (metric, query) {
+                    query = query || "";
+                    var ix = query.lastIndexOf("$");
+                    var fixed;
+                    var variable;
+                    if (ix >= 0) {
+                        fixed = query.substr(0, ix + 1);
+                        variable = query.substr(ix + 1);
+                    }
+                    else {
+                        fixed = "$";
+                        variable = query;
+                    }
+                    return this.suggestTagKeys(metric, variable).then(function (res) {
+                        var data = [];
+                        lodash_1.default.forEach(res, function (dot) {
+                            if (dot) {
+                                var name = fixed + dot.text;
+                                data.push({ text: name, value: name });
+                            }
+                        });
+                        return data;
+                    });
+                };
                 AkumuliDatasource.prototype.suggestMetricNames = function (metricName) {
                     var requestBody = {
                         select: "metric-names",
@@ -95,6 +119,17 @@ System.register(['lodash', "moment"], function(exports_1) {
                         where.push(tagset);
                     });
                     return where;
+                };
+                // Convert series name into alias using the alias template
+                AkumuliDatasource.prototype.convertSeriesName = function (template, name) {
+                    // Parse the template
+                    var dict = this.extractTags([name])[0];
+                    var result = template;
+                    for (var key in dict) {
+                        var value = dict[key];
+                        result = result.replace("$" + key, value);
+                    }
+                    return result;
                 };
                 AkumuliDatasource.prototype.annotationQuery = function (options) {
                     return this.backendSrv.get('/api/annotations', {
@@ -247,7 +282,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                             shouldComputeRate: target.shouldComputeRate,
                             shouldEWMA: target.shouldEWMA,
                             decay: target.decay,
-                            downsampleAggregator: target.downsampleAggregator
+                            downsampleAggregator: target.downsampleAggregator,
+                            downsampleInterval: target.downsampleInterval,
                         };
                         return _this.groupAggregateTargetQuery(begin, end, interval, limit, newTarget);
                     });
@@ -270,14 +306,16 @@ System.register(['lodash', "moment"], function(exports_1) {
                             });
                         }
                     }
+                    var alias = target.alias;
                     var aggFunc = target.downsampleAggregator;
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
                     var decay = target.decay || 0.5;
+                    var samplingInterval = target.downsampleInterval || interval;
                     var query = {
                         "group-aggregate": {
                             metric: metricName,
-                            step: interval,
+                            step: samplingInterval,
                             func: [aggFunc]
                         },
                         range: {
@@ -292,7 +330,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                         query["apply"].push({ name: "rate" });
                     }
                     if (ewma) {
-                        query["apply"].push({ name: "ewma-error", decay: decay });
+                        query["apply"].push({ name: "ewma", decay: decay });
                     }
                     var httpRequest = {
                         method: "POST",
@@ -355,6 +393,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                                 target: currentTarget,
                                 datapoints: datapoints
                             });
+                        }
+                        if (alias) {
+                            for (var i = 0; i < data.length; i++) {
+                                data[i].target = _this.convertSeriesName(alias, data[i].target);
+                            }
                         }
                         return data;
                     });
@@ -445,6 +488,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             });
                         }
                     }
+                    var alias = target.alias;
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
                     var decay = target.decay || 0.5;
@@ -462,7 +506,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                         query["apply"].push({ name: "rate" });
                     }
                     if (ewma) {
-                        query["apply"].push({ name: "ewma-error", decay: decay });
+                        query["apply"].push({ name: "ewma", decay: decay });
                     }
                     var httpRequest = {
                         method: "POST",
@@ -523,6 +567,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                                 datapoints: datapoints
                             });
                         }
+                        if (alias) {
+                            for (var i = 0; i < data.length; i++) {
+                                data[i].target = _this.convertSeriesName(alias, data[i].target);
+                            }
+                        }
                         return data;
                     });
                 };
@@ -533,6 +582,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var interval = options.interval;
                     var limit = options.maxDataPoints; // TODO: don't ignore the limit
                     var allQueryPromise = lodash_1.default.map(options.targets, function (target) {
+                        if (target.hide === true) {
+                            return new Promise(function (resolve, reject) {
+                                resolve([]);
+                            });
+                        }
                         var disableDownsampling = target.disableDownsampling;
                         var isTop = target.topN ? true : false;
                         if (disableDownsampling) {

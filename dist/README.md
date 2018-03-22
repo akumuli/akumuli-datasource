@@ -22,7 +22,9 @@ To install the plugin simply clone this repository to your Grafana's plugins dir
 
 ## Templating
 
-The datasource supports templating feature. The only supported variable type is "Query". The query format is the following: `<metric-name> <tag-name>`. For instance, if you want to fetch the list of hosts from the database and you have the metric name called `proc.net.bytes` and the host names are encoded using the `host` tag, you can careate the variable with name "HostName" and query string `proc.net.bytes host`. After that you can create a dashboard and use the name `$HostName` instead of the actual address.
+The datasource supports templating feature. The only supported variable type is "Query". The query format is the following: `<metric-name> <tag-name>`. For instance, if you want to fetch the list of hosts from the database and you have the metric name called `state` and the host names are encoded using the `endpoint` tag, you can careate the variable with name "Endpoint" and query string `state endpoint`. After that you can create a dashboard and use the name `$Endpoint` instead of the actual address.
+
+![Template variable creation](https://raw.githubusercontent.com/akumuli/akumuli-datasource/master/create_template.png)
 
 ## How to build
 

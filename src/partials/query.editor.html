@@ -39,6 +39,59 @@
 	</div>
 
 	<div class="gf-form-inline">
+		<div class="gf-form">
+			<label class="gf-form-label query-keyword width-8">
+				Tags
+			</label>
+		</div>
+
+		<div class="gf-form" ng-repeat="(key, value) in ctrl.target.tags track by $index" class="gf-form">
+			<label class="gf-form-label">
+				{{key}}&nbsp;=&nbsp;{{value}}
+				<a ng-click="ctrl.editTag(key, value)">
+					<i class="fa fa-pencil"></i>
+				</a>
+				<a ng-click="ctrl.removeTag(key)">
+					<i class="fa fa-remove"></i>
+				</a>
+			</label>
+		</div>
+
+		<div class="gf-form" ng-hide="ctrl.addTagMode">
+			<label class="gf-form-label query-keyword">
+				<a ng-click="ctrl.addTag()"><i class="fa fa-plus"></i></a>
+			</label>
+		</div>
+
+		<div class="gf-form" ng-show="ctrl.addTagMode">
+			<input type="text"
+						 class="gf-form-input" spellcheck='false'
+						 bs-typeahead="ctrl.suggestTagKeys" data-min-length=0 data-items=100
+					   ng-model="ctrl.target.currentTagKey" placeholder="key">
+			</input>
+
+			<input type="text" class="gf-form-input"
+						 spellcheck='false' bs-typeahead="ctrl.suggestTagValues"
+						 data-min-length=0 data-items=100 ng-model="ctrl.target.currentTagValue" placeholder="value">
+			</input>
+
+			<label class="gf-form-label" ng-show="ctrl.errors.tags">
+				<a bs-tooltip="ctrl.errors.tags" style="color: rgb(229, 189, 28)" >
+					<i class="fa fa-warning"></i>
+				</a>
+			</label>
+			<label class="gf-form-label" >
+				<a ng-click="ctrl.addTag()" ng-hide="ctrl.errors.tags">add tag</a>
+				<a ng-click="ctrl.closeAddTagMode()"><i class="fa fa-remove"></i></a>
+			</label>
+		</div>
+
+		<div class="gf-form gf-form--grow">
+			<div class="gf-form-label gf-form-label--grow"></div>
+		</div>
+	</div>
+
+	<div class="gf-form-inline">
 	    <div class="gf-form max-width-25">
 			<label class="gf-form-label query-keyword width-8">Top-N</label>
 			<input type="text" class="gf-form-input"
@@ -57,7 +110,7 @@
 
 	<div class="gf-form-inline">
 		<div class="gf-form max-width-25">
-			<label class="gf-form-label query-keyword width-8">Down sample</label>
+			<label class="gf-form-label query-keyword width-8">Downsample</label>
 			<input type="text" class="gf-form-input"
 						 ng-model="ctrl.target.downsampleInterval"
 						 ng-model-onblur
@@ -112,59 +165,6 @@
 			<div class="gf-form-label gf-form-label--grow"></div>
 		</div>
 
-	</div>
-
-	<div class="gf-form-inline">
-		<div class="gf-form">
-			<label class="gf-form-label query-keyword width-8">
-				Tags
-			</label>
-		</div>
-
-		<div class="gf-form" ng-repeat="(key, value) in ctrl.target.tags track by $index" class="gf-form">
-			<label class="gf-form-label">
-				{{key}}&nbsp;=&nbsp;{{value}}
-				<a ng-click="ctrl.editTag(key, value)">
-					<i class="fa fa-pencil"></i>
-				</a>
-				<a ng-click="ctrl.removeTag(key)">
-					<i class="fa fa-remove"></i>
-				</a>
-			</label>
-		</div>
-
-		<div class="gf-form" ng-hide="ctrl.addTagMode">
-			<label class="gf-form-label query-keyword">
-				<a ng-click="ctrl.addTag()"><i class="fa fa-plus"></i></a>
-			</label>
-		</div>
-
-		<div class="gf-form" ng-show="ctrl.addTagMode">
-			<input type="text"
-						 class="gf-form-input" spellcheck='false'
-						 bs-typeahead="ctrl.suggestTagKeys" data-min-length=0 data-items=100
-					   ng-model="ctrl.target.currentTagKey" placeholder="key">
-			</input>
-
-			<input type="text" class="gf-form-input"
-						 spellcheck='false' bs-typeahead="ctrl.suggestTagValues"
-						 data-min-length=0 data-items=100 ng-model="ctrl.target.currentTagValue" placeholder="value">
-			</input>
-
-			<label class="gf-form-label" ng-show="ctrl.errors.tags">
-				<a bs-tooltip="ctrl.errors.tags" style="color: rgb(229, 189, 28)" >
-					<i class="fa fa-warning"></i>
-				</a>
-			</label>
-			<label class="gf-form-label" >
-				<a ng-click="ctrl.addTag()" ng-hide="ctrl.errors.tags">add tag</a>
-				<a ng-click="ctrl.closeAddTagMode()"><i class="fa fa-remove"></i></a>
-			</label>
-		</div>
-
-		<div class="gf-form gf-form--grow">
-			<div class="gf-form-label gf-form-label--grow"></div>
-		</div>
 	</div>
 </query-editor-row>
 

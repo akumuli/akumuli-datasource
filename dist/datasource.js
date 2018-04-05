@@ -33,15 +33,15 @@ System.register(['lodash', "moment"], function(exports_1) {
                 AkumuliDatasource.prototype.metricFindQuery = function (queryString) {
                     var components = queryString.split(" ");
                     var len = components.length;
-                    if (len == 0) {
+                    if (len === 0) {
                         // query metric names
                         return this.suggestMetricNames("");
                     }
-                    else if (len == 1) {
+                    else if (len === 1) {
                         // query tag names
                         return this.suggestTagKeys(components[0], "");
                     }
-                    else if (len == 2) {
+                    else if (len === 2) {
                         // query tag values
                         return this.suggestTagValues(components[0], components[1], "", false);
                     }
@@ -177,6 +177,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                 };
                 AkumuliDatasource.prototype.suggestTagValues = function (metric, tagName, valuePrefix, addTemplateVars) {
                     var _this = this;
+                    console.log("suggestTagValues ", metric, tagName, valuePrefix, addTemplateVars);
                     tagName = tagName || "";
                     valuePrefix = valuePrefix || "";
                     var requestBody = {
@@ -207,9 +208,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                         });
                         // Include template variables (if any)
                         if (addTemplateVars) {
-                            lodash_1.default.forEach(Object.keys(_this.templateSrv.index), function (varName) {
-                                var variable = _this.templateSrv.index[varName];
-                                if (variable.type == "query") {
+                            lodash_1.default.forEach(_this.templateSrv.variables, function (variable) {
+                                if (variable.type === "query") {
                                     var template = "$".concat(variable.name);
                                     data.push({ text: template, value: template });
                                 }

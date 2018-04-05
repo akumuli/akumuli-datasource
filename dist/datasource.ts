@@ -23,13 +23,13 @@ class AkumuliDatasource {
   metricFindQuery(queryString) {
     var components = queryString.split(" ");
     var len = components.length;
-    if (len == 0) {
+    if (len === 0) {
       // query metric names
       return this.suggestMetricNames("");
-    } else if (len == 1) {
+    } else if (len === 1) {
       // query tag names
       return this.suggestTagKeys(components[0], "");
-    } else if (len == 2) {
+    } else if (len === 2) {
       // query tag values
       return this.suggestTagValues(components[0], components[1], "", false);
     }
@@ -39,8 +39,8 @@ class AkumuliDatasource {
   suggestAlias(metric, query) {
     query = query || "";
     var ix = query.lastIndexOf("$");
-    var fixed : string;
-    var variable : string;
+    var fixed: string;
+    var variable: string;
     if (ix >= 0) {
       fixed = query.substr(0, ix+1);
       variable = query.substr(ix+1);
@@ -173,6 +173,7 @@ class AkumuliDatasource {
   }
 
   suggestTagValues(metric, tagName, valuePrefix, addTemplateVars) {
+    console.log("suggestTagValues ", metric, tagName, valuePrefix, addTemplateVars);
     tagName = tagName || "";
     valuePrefix = valuePrefix || "";
     var requestBody: any = {
@@ -204,9 +205,8 @@ class AkumuliDatasource {
       });
       // Include template variables (if any)
       if (addTemplateVars) {
-        _.forEach(Object.keys(this.templateSrv.index), varName => {
-          var variable = this.templateSrv.index[varName];
-          if (variable.type == "query") {
+        _.forEach(this.templateSrv.variables, variable => {
+          if (variable.type === "query") {
             var template = "$".concat(variable.name);
             data.push({text: template, value: template});
           }
@@ -308,7 +308,7 @@ class AkumuliDatasource {
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
-    var samplingInterval = target.downsampleInterval || interval
+    var samplingInterval = target.downsampleInterval || interval;
     var query: any = {
       "group-aggregate": {
         metric: metricName,

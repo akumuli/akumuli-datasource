@@ -60,6 +60,8 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     };
 
     this.suggestAlias = (query, callback) => {
+      console.log("query_ctrl.suggestAlias called");
+      console.log("query_ctrl.suggestAlias, this=", this);
       this.datasource.suggestAlias(this.target.metric, this.target.alias)
       .then(this.getTextValues)
       .then(callback);
@@ -72,6 +74,8 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     };
 
     this.suggestTagValues = (query, callback) => {
+      console.log("query_ctrl.suggestTagValues called");
+      console.log("query_ctrl.suggestTagValues, this=", this);
       this.datasource.suggestTagValues(this.target.metric, this.target.currentTagKey, this.target.currentTagValue, true)
       .then(this.getTextValues)
       .then(callback);

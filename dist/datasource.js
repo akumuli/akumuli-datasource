@@ -177,14 +177,24 @@ System.register(['lodash', "moment"], function(exports_1) {
                 };
                 AkumuliDatasource.prototype.suggestTagValues = function (metric, tagName, valuePrefix, addTemplateVars) {
                     var _this = this;
-                    console.log("suggestTagValues ", metric, tagName, valuePrefix, addTemplateVars);
-                    tagName = tagName || "";
                     valuePrefix = valuePrefix || "";
+                    var ix = valuePrefix.lastIndexOf(" ");
+                    var fixed;
+                    var variable;
+                    if (ix >= 0) {
+                        fixed = valuePrefix.substr(0, ix + 1);
+                        variable = valuePrefix.substr(ix + 1);
+                    }
+                    else {
+                        fixed = "";
+                        variable = valuePrefix;
+                    }
+                    tagName = tagName || "";
                     var requestBody = {
                         select: "tag-values",
                         metric: metric,
                         tag: tagName,
-                        "starts-with": valuePrefix
+                        "starts-with": variable
                     };
                     var httpRequest = {
                         method: "POST",
@@ -202,7 +212,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                         var lines = res.data.split("\r\n");
                         lodash_1.default.forEach(lines, function (line) {
                             if (line) {
-                                var name = line.substr(1);
+                                var name = fixed + line.substr(1);
                                 data.push({ text: name, value: name });
                             }
                         });
@@ -210,13 +220,31 @@ System.register(['lodash', "moment"], function(exports_1) {
                         if (addTemplateVars) {
                             lodash_1.default.forEach(_this.templateSrv.variables, function (variable) {
                                 if (variable.type === "query") {
-                                    var template = "$".concat(variable.name);
+                                    var template = fixed + "$" + variable.name;
                                     data.push({ text: template, value: template });
                                 }
                             });
                         }
                         return data;
                     });
+                };
+                AkumuliDatasource.prototype.preprocessTags = function (target) {
+                    var _this = this;
+                    var tags = {};
+                    if (target.tags) {
+                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                            var value = target.tags[key];
+                            value = _this.templateSrv.replace(value);
+                            if (value.indexOf(" ") > 0) {
+                                var lst = value.split(" ");
+                                tags[key] = lst;
+                            }
+                            else {
+                                tags[key] = value;
+                            }
+                        });
+                    }
+                    return tags;
                 };
                 /** Query time-series storage */
                 AkumuliDatasource.prototype.groupAggregateTopNQuery = function (begin, end, interval, limit, target) {
@@ -226,14 +254,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     // Extract tags from results and run 'select' query
                     // nomrally.
                     var metricName = target.metric;
-                    var tags = {};
-                    if (target.tags) {
-                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
-                            var value = target.tags[key];
-                            value = _this.templateSrv.replace(value);
-                            tags[key] = value;
-                        });
-                    }
+                    var tags = this.preprocessTags(target);
                     var isTop = target.topN ? true : false;
                     var topN = target.topN;
                     if (!isTop) {
@@ -299,11 +320,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             tags = target.tags;
                         }
                         else {
-                            lodash_1.default.forEach(Object.keys(target.tags), function (key) {
-                                var value = target.tags[key];
-                                value = _this.templateSrv.replace(value);
-                                tags[key] = value;
-                            });
+                            tags = this.preprocessTags(target);
                         }
                     }
                     var alias = target.alias;
@@ -410,14 +427,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     // Extract tags from results and run 'select' query
                     // nomrally.
                     var metricName = target.metric;
-                    var tags = {};
-                    if (target.tags) {
-                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
-                            var value = target.tags[key];
-                            value = _this.templateSrv.replace(value);
-                            tags[key] = value;
-                        });
-                    }
+                    var tags = this.preprocessTags(target);
                     var isTop = target.topN ? true : false;
                     var topN = target.topN;
                     if (!isTop) {
@@ -481,11 +491,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             tags = target.tags;
                         }
                         else {
-                            lodash_1.default.forEach(Object.keys(target.tags), function (key) {
-                                var value = target.tags[key];
-                                value = _this.templateSrv.replace(value);
-                                tags[key] = value;
-                            });
+                            tags = this.preprocessTags(target);
                         }
                     }
                     var alias = target.alias;

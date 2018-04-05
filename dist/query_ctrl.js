@@ -52,8 +52,6 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                             .then(callback);
                     };
                     this.suggestAlias = function (query, callback) {
-                        console.log("query_ctrl.suggestAlias called");
-                        console.log("query_ctrl.suggestAlias, this=", _this);
                         _this.datasource.suggestAlias(_this.target.metric, _this.target.alias)
                             .then(_this.getTextValues)
                             .then(callback);
@@ -64,8 +62,6 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                             .then(callback);
                     };
                     this.suggestTagValues = function (query, callback) {
-                        console.log("query_ctrl.suggestTagValues called");
-                        console.log("query_ctrl.suggestTagValues, this=", _this);
                         _this.datasource.suggestTagValues(_this.target.metric, _this.target.currentTagKey, _this.target.currentTagValue, true)
                             .then(_this.getTextValues)
                             .then(callback);

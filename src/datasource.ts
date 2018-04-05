@@ -173,13 +173,26 @@ class AkumuliDatasource {
   }
 
   suggestTagValues(metric, tagName, valuePrefix, addTemplateVars) {
-    tagName = tagName || "";
+
     valuePrefix = valuePrefix || "";
+    var ix = valuePrefix.lastIndexOf(" ");
+    var fixed: string;
+    var variable: string;
+    if (ix >= 0) {
+      fixed = valuePrefix.substr(0, ix+1);
+      variable = valuePrefix.substr(ix+1);
+    } else {
+      fixed = "";
+      variable = valuePrefix;
+    }
+
+    tagName = tagName || "";
+
     var requestBody: any = {
       select: "tag-values",
       metric: metric,
       tag: tagName,
-      "starts-with": valuePrefix
+      "starts-with": variable
     };
     var httpRequest: any = {
       method: "POST",
@@ -198,7 +211,7 @@ class AkumuliDatasource {
       var lines = res.data.split("\r\n");
       _.forEach(lines, line => {
         if (line) {
-          var name = line.substr(1);
+          var name = fixed + line.substr(1);
           data.push({text: name, value: name});
         }
       });
@@ -206,13 +219,30 @@ class AkumuliDatasource {
       if (addTemplateVars) {
         _.forEach(this.templateSrv.variables, variable => {
           if (variable.type === "query") {
-            var template = "$".concat(variable.name);
+            var template = fixed + "$" + variable.name;
             data.push({text: template, value: template});
           }
         });
       }
       return data;
     });
+  }
+
+  preprocessTags(target) {
+    var tags = {};
+    if (target.tags) {
+      _.forEach(Object.keys(target.tags), key => {
+        var value = target.tags[key];
+        value = this.templateSrv.replace(value);
+        if (value.indexOf(" ") > 0) {
+          var lst = value.split(" ");
+          tags[key] = lst;
+        } else {
+          tags[key] = value;
+        }
+      });
+    }
+    return tags;
   }
 
   /** Query time-series storage */
@@ -222,14 +252,7 @@ class AkumuliDatasource {
     // Extract tags from results and run 'select' query
     // nomrally.
     var metricName = target.metric;
-    var tags = {};
-    if (target.tags) {
-      _.forEach(Object.keys(target.tags), key => {
-        var value = target.tags[key];
-        value = this.templateSrv.replace(value);
-        tags[key] = value;
-      });
-    }
+    var tags = this.preprocessTags(target);
     var isTop = target.topN ? true : false;
     var topN = target.topN;
     if (!isTop) {
@@ -295,11 +318,7 @@ class AkumuliDatasource {
         // Special case, TopN query is processed
         tags = target.tags;
       } else {
-        _.forEach(Object.keys(target.tags), key => {
-          var value = target.tags[key];
-          value = this.templateSrv.replace(value);
-          tags[key] = value;
-        });
+        tags = this.preprocessTags(target);
       }
     }
     var alias = target.alias;
@@ -407,14 +426,7 @@ class AkumuliDatasource {
     // Extract tags from results and run 'select' query
     // nomrally.
     var metricName = target.metric;
-    var tags = {};
-    if (target.tags) {
-      _.forEach(Object.keys(target.tags), key => {
-        var value = target.tags[key];
-        value = this.templateSrv.replace(value);
-        tags[key] = value;
-      });
-    }
+    var tags = this.preprocessTags(target);
     var isTop = target.topN ? true : false;
     var topN = target.topN;
     if (!isTop) {
@@ -479,11 +491,7 @@ class AkumuliDatasource {
         // Special case, TopN query is processed
         tags = target.tags;
       } else {
-        _.forEach(Object.keys(target.tags), key => {
-          var value = target.tags[key];
-          value = this.templateSrv.replace(value);
-          tags[key] = value;
-        });
+        tags = this.preprocessTags(target);
       }
     }
     var alias = target.alias;

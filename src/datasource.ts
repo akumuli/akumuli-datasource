@@ -6,7 +6,9 @@ import moment from "moment";
 class AkumuliDatasource {
 
   /** @ngInject */
-  constructor(private instanceSettings, private backendSrv, private templateSrv, private $q) {}
+  constructor(private instanceSettings, private backendSrv, private templateSrv, private $q) {
+    this.templateSrv.formatValue = this.formatTagValue;
+  }
 
   /** Test that datasource connection works */
   testDatasource() {
@@ -231,6 +233,13 @@ class AkumuliDatasource {
       }
       return data;
     });
+  }
+
+  formatTagValue(value) {
+    if (typeof value === 'string') {
+      return value;
+    }
+    return value.join(" ");
   }
 
   preprocessTags(target) {

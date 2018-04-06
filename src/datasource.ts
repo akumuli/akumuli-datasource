@@ -41,7 +41,10 @@ class AkumuliDatasource {
     var ix = query.lastIndexOf("$");
     var fixed: string;
     var variable: string;
-    if (ix >= 0) {
+    if (query.endsWith(" ")) {
+      fixed = query + "$";
+      variable = "";
+    } else if (ix >= 0) {
       fixed = query.substr(0, ix+1);
       variable = query.substr(ix+1);
     } else {
@@ -173,7 +176,9 @@ class AkumuliDatasource {
   }
 
   suggestTagValues(metric, tagName, valuePrefix, addTemplateVars) {
-
+    // valuePrefix can be empty, can contain single token (complete or not) or it can have
+    // a list of values with incomplete last token (e.g tagName="direction" valuePrefix="in ou"
+    // should return autocomplete for "ou" wich will be "out").
     valuePrefix = valuePrefix || "";
     var ix = valuePrefix.lastIndexOf(" ");
     var fixed: string;
@@ -234,9 +239,15 @@ class AkumuliDatasource {
       _.forEach(Object.keys(target.tags), key => {
         var value = target.tags[key];
         value = this.templateSrv.replace(value);
-        if (value.indexOf(" ") > 0) {
+        if (value.lastIndexOf(" ") > 0) {
           var lst = value.split(" ");
-          tags[key] = lst;
+          var outlst = [];
+          _.forEach(lst, token => {
+            if (token.length !== 0) {
+              outlst.push(token.trim());
+            }
+          });
+          tags[key] = outlst;
         } else {
           tags[key] = value;
         }

@@ -52,7 +52,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var ix = query.lastIndexOf("$");
                     var fixed;
                     var variable;
-                    if (ix >= 0) {
+                    if (query.endsWith(" ")) {
+                        fixed = query + "$";
+                        variable = "";
+                    }
+                    else if (ix >= 0) {
                         fixed = query.substr(0, ix + 1);
                         variable = query.substr(ix + 1);
                     }
@@ -177,6 +181,9 @@ System.register(['lodash', "moment"], function(exports_1) {
                 };
                 AkumuliDatasource.prototype.suggestTagValues = function (metric, tagName, valuePrefix, addTemplateVars) {
                     var _this = this;
+                    // valuePrefix can be empty, can contain single token (complete or not) or it can have
+                    // a list of values with incomplete last token (e.g tagName="direction" valuePrefix="in ou"
+                    // should return autocomplete for "ou" wich will be "out").
                     valuePrefix = valuePrefix || "";
                     var ix = valuePrefix.lastIndexOf(" ");
                     var fixed;
@@ -235,9 +242,15 @@ System.register(['lodash', "moment"], function(exports_1) {
                         lodash_1.default.forEach(Object.keys(target.tags), function (key) {
                             var value = target.tags[key];
                             value = _this.templateSrv.replace(value);
-                            if (value.indexOf(" ") > 0) {
+                            if (value.lastIndexOf(" ") > 0) {
                                 var lst = value.split(" ");
-                                tags[key] = lst;
+                                var outlst = [];
+                                lodash_1.default.forEach(lst, function (token) {
+                                    if (token.length !== 0) {
+                                        outlst.push(token.trim());
+                                    }
+                                });
+                                tags[key] = outlst;
                             }
                             else {
                                 tags[key] = value;

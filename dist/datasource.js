@@ -18,6 +18,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     this.backendSrv = backendSrv;
                     this.templateSrv = templateSrv;
                     this.$q = $q;
+                    this.templateSrv.formatValue = this.formatTagValue;
                 }
                 /** Test that datasource connection works */
                 AkumuliDatasource.prototype.testDatasource = function () {
@@ -234,6 +235,12 @@ System.register(['lodash', "moment"], function(exports_1) {
                         }
                         return data;
                     });
+                };
+                AkumuliDatasource.prototype.formatTagValue = function (value) {
+                    if (typeof value === 'string') {
+                        return value;
+                    }
+                    return value.join(" ");
                 };
                 AkumuliDatasource.prototype.preprocessTags = function (target) {
                     var _this = this;

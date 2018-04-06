@@ -23,13 +23,13 @@ class AkumuliDatasource {
   metricFindQuery(queryString) {
     var components = queryString.split(" ");
     var len = components.length;
-    if (len == 0) {
+    if (len === 0) {
       // query metric names
       return this.suggestMetricNames("");
-    } else if (len == 1) {
+    } else if (len === 1) {
       // query tag names
       return this.suggestTagKeys(components[0], "");
-    } else if (len == 2) {
+    } else if (len === 2) {
       // query tag values
       return this.suggestTagValues(components[0], components[1], "", false);
     }
@@ -39,9 +39,12 @@ class AkumuliDatasource {
   suggestAlias(metric, query) {
     query = query || "";
     var ix = query.lastIndexOf("$");
-    var fixed : string;
-    var variable : string;
-    if (ix >= 0) {
+    var fixed: string;
+    var variable: string;
+    if (query.endsWith(" ")) {
+      fixed = query + "$";
+      variable = "";
+    } else if (ix >= 0) {
       fixed = query.substr(0, ix+1);
       variable = query.substr(ix+1);
     } else {
@@ -173,13 +176,28 @@ class AkumuliDatasource {
   }
 
   suggestTagValues(metric, tagName, valuePrefix, addTemplateVars) {
-    tagName = tagName || "";
+    // valuePrefix can be empty, can contain single token (complete or not) or it can have
+    // a list of values with incomplete last token (e.g tagName="direction" valuePrefix="in ou"
+    // should return autocomplete for "ou" wich will be "out").
     valuePrefix = valuePrefix || "";
+    var ix = valuePrefix.lastIndexOf(" ");
+    var fixed: string;
+    var variable: string;
+    if (ix >= 0) {
+      fixed = valuePrefix.substr(0, ix+1);
+      variable = valuePrefix.substr(ix+1);
+    } else {
+      fixed = "";
+      variable = valuePrefix;
+    }
+
+    tagName = tagName || "";
+
     var requestBody: any = {
       select: "tag-values",
       metric: metric,
       tag: tagName,
-      "starts-with": valuePrefix
+      "starts-with": variable
     };
     var httpRequest: any = {
       method: "POST",
@@ -198,22 +216,44 @@ class AkumuliDatasource {
       var lines = res.data.split("\r\n");
       _.forEach(lines, line => {
         if (line) {
-          var name = line.substr(1);
+          var name = fixed + line.substr(1);
           data.push({text: name, value: name});
         }
       });
       // Include template variables (if any)
       if (addTemplateVars) {
-        _.forEach(Object.keys(this.templateSrv.index), varName => {
-          var variable = this.templateSrv.index[varName];
-          if (variable.type == "query") {
-            var template = "$".concat(variable.name);
+        _.forEach(this.templateSrv.variables, variable => {
+          if (variable.type === "query") {
+            var template = fixed + "$" + variable.name;
             data.push({text: template, value: template});
           }
         });
       }
       return data;
     });
+  }
+
+  preprocessTags(target) {
+    var tags = {};
+    if (target.tags) {
+      _.forEach(Object.keys(target.tags), key => {
+        var value = target.tags[key];
+        value = this.templateSrv.replace(value);
+        if (value.lastIndexOf(" ") > 0) {
+          var lst = value.split(" ");
+          var outlst = [];
+          _.forEach(lst, token => {
+            if (token.length !== 0) {
+              outlst.push(token.trim());
+            }
+          });
+          tags[key] = outlst;
+        } else {
+          tags[key] = value;
+        }
+      });
+    }
+    return tags;
   }
 
   /** Query time-series storage */
@@ -223,14 +263,7 @@ class AkumuliDatasource {
     // Extract tags from results and run 'select' query
     // nomrally.
     var metricName = target.metric;
-    var tags = {};
-    if (target.tags) {
-      _.forEach(Object.keys(target.tags), key => {
-        var value = target.tags[key];
-        value = this.templateSrv.replace(value);
-        tags[key] = value;
-      });
-    }
+    var tags = this.preprocessTags(target);
     var isTop = target.topN ? true : false;
     var topN = target.topN;
     if (!isTop) {
@@ -296,11 +329,7 @@ class AkumuliDatasource {
         // Special case, TopN query is processed
         tags = target.tags;
       } else {
-        _.forEach(Object.keys(target.tags), key => {
-          var value = target.tags[key];
-          value = this.templateSrv.replace(value);
-          tags[key] = value;
-        });
+        tags = this.preprocessTags(target);
       }
     }
     var alias = target.alias;
@@ -308,7 +337,7 @@ class AkumuliDatasource {
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
-    var samplingInterval = target.downsampleInterval || interval
+    var samplingInterval = target.downsampleInterval || interval;
     var query: any = {
       "group-aggregate": {
         metric: metricName,
@@ -408,14 +437,7 @@ class AkumuliDatasource {
     // Extract tags from results and run 'select' query
     // nomrally.
     var metricName = target.metric;
-    var tags = {};
-    if (target.tags) {
-      _.forEach(Object.keys(target.tags), key => {
-        var value = target.tags[key];
-        value = this.templateSrv.replace(value);
-        tags[key] = value;
-      });
-    }
+    var tags = this.preprocessTags(target);
     var isTop = target.topN ? true : false;
     var topN = target.topN;
     if (!isTop) {
@@ -480,11 +502,7 @@ class AkumuliDatasource {
         // Special case, TopN query is processed
         tags = target.tags;
       } else {
-        _.forEach(Object.keys(target.tags), key => {
-          var value = target.tags[key];
-          value = this.templateSrv.replace(value);
-          tags[key] = value;
-        });
+        tags = this.preprocessTags(target);
       }
     }
     var alias = target.alias;

@@ -18,6 +18,7 @@ declare class AkumuliDatasource {
     getAggregators(): Promise<{}>;
     suggestTagKeys(metric: any, tagPrefix: any): any;
     suggestTagValues(metric: any, tagName: any, valuePrefix: any, addTemplateVars: any): any;
+    preprocessTags(target: any): {};
     /** Query time-series storage */
     groupAggregateTopNQuery(begin: any, end: any, interval: any, limit: any, target: any): any;
     /** Query time-series storage */

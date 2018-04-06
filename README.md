@@ -26,7 +26,7 @@ To install the plugin simply clone this repository to your Grafana's plugins dir
 
 ### Metric and Tags
 
-You can set the metric name and tags using the `Metrics` tab. Note that the query can return many time-series. If you wouldn't provide the tags, Akumuli will return all time-series that start with this metric name.
+You can set the metric name and tags using the `Metrics` tab. Note that the query can return many time-series. If you wouldn't provide the tags, Akumuli will return all time-series that start with this metric name. To choose a subset of series from the metric one can use `Tags` control. You can provide more than one value for each tag. Values should be space separated. Autocomplete works for metric names, tag names, and tag values.
 
 ### Alias
 

@@ -30,6 +30,7 @@
 						placeholder="alias" 
 						data-min-length=0 
 						data-items=100
+						ng-trim="false" 
 						ng-blur="ctrl.targetBlur()">
 			</input>
 		</div>
@@ -72,7 +73,7 @@
 
 			<input type="text" class="gf-form-input"
 						 spellcheck='false' bs-typeahead="ctrl.suggestTagValues"
-						 data-min-length=0 data-items=100 ng-model="ctrl.target.currentTagValue" placeholder="value">
+						 data-min-length=0 data-items=100 ng-model="ctrl.target.currentTagValue" ng-trim="false" placeholder="value">
 			</input>
 
 			<label class="gf-form-label" ng-show="ctrl.errors.tags">

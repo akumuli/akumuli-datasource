@@ -33,15 +33,15 @@ System.register(['lodash', "moment"], function(exports_1) {
                 AkumuliDatasource.prototype.metricFindQuery = function (queryString) {
                     var components = queryString.split(" ");
                     var len = components.length;
-                    if (len == 0) {
+                    if (len === 0) {
                         // query metric names
                         return this.suggestMetricNames("");
                     }
-                    else if (len == 1) {
+                    else if (len === 1) {
                         // query tag names
                         return this.suggestTagKeys(components[0], "");
                     }
-                    else if (len == 2) {
+                    else if (len === 2) {
                         // query tag values
                         return this.suggestTagValues(components[0], components[1], "", false);
                     }
@@ -52,7 +52,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var ix = query.lastIndexOf("$");
                     var fixed;
                     var variable;
-                    if (ix >= 0) {
+                    if (query.endsWith(" ")) {
+                        fixed = query + "$";
+                        variable = "";
+                    }
+                    else if (ix >= 0) {
                         fixed = query.substr(0, ix + 1);
                         variable = query.substr(ix + 1);
                     }
@@ -177,13 +181,27 @@ System.register(['lodash', "moment"], function(exports_1) {
                 };
                 AkumuliDatasource.prototype.suggestTagValues = function (metric, tagName, valuePrefix, addTemplateVars) {
                     var _this = this;
-                    tagName = tagName || "";
+                    // valuePrefix can be empty, can contain single token (complete or not) or it can have
+                    // a list of values with incomplete last token (e.g tagName="direction" valuePrefix="in ou"
+                    // should return autocomplete for "ou" wich will be "out").
                     valuePrefix = valuePrefix || "";
+                    var ix = valuePrefix.lastIndexOf(" ");
+                    var fixed;
+                    var variable;
+                    if (ix >= 0) {
+                        fixed = valuePrefix.substr(0, ix + 1);
+                        variable = valuePrefix.substr(ix + 1);
+                    }
+                    else {
+                        fixed = "";
+                        variable = valuePrefix;
+                    }
+                    tagName = tagName || "";
                     var requestBody = {
                         select: "tag-values",
                         metric: metric,
                         tag: tagName,
-                        "starts-with": valuePrefix
+                        "starts-with": variable
                     };
                     var httpRequest = {
                         method: "POST",
@@ -201,22 +219,45 @@ System.register(['lodash', "moment"], function(exports_1) {
                         var lines = res.data.split("\r\n");
                         lodash_1.default.forEach(lines, function (line) {
                             if (line) {
-                                var name = line.substr(1);
+                                var name = fixed + line.substr(1);
                                 data.push({ text: name, value: name });
                             }
                         });
                         // Include template variables (if any)
                         if (addTemplateVars) {
-                            lodash_1.default.forEach(Object.keys(_this.templateSrv.index), function (varName) {
-                                var variable = _this.templateSrv.index[varName];
-                                if (variable.type == "query") {
-                                    var template = "$".concat(variable.name);
+                            lodash_1.default.forEach(_this.templateSrv.variables, function (variable) {
+                                if (variable.type === "query") {
+                                    var template = fixed + "$" + variable.name;
                                     data.push({ text: template, value: template });
                                 }
                             });
                         }
                         return data;
                     });
+                };
+                AkumuliDatasource.prototype.preprocessTags = function (target) {
+                    var _this = this;
+                    var tags = {};
+                    if (target.tags) {
+                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
+                            var value = target.tags[key];
+                            value = _this.templateSrv.replace(value);
+                            if (value.lastIndexOf(" ") > 0) {
+                                var lst = value.split(" ");
+                                var outlst = [];
+                                lodash_1.default.forEach(lst, function (token) {
+                                    if (token.length !== 0) {
+                                        outlst.push(token.trim());
+                                    }
+                                });
+                                tags[key] = outlst;
+                            }
+                            else {
+                                tags[key] = value;
+                            }
+                        });
+                    }
+                    return tags;
                 };
                 /** Query time-series storage */
                 AkumuliDatasource.prototype.groupAggregateTopNQuery = function (begin, end, interval, limit, target) {
@@ -226,14 +267,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     // Extract tags from results and run 'select' query
                     // nomrally.
                     var metricName = target.metric;
-                    var tags = {};
-                    if (target.tags) {
-                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
-                            var value = target.tags[key];
-                            value = _this.templateSrv.replace(value);
-                            tags[key] = value;
-                        });
-                    }
+                    var tags = this.preprocessTags(target);
                     var isTop = target.topN ? true : false;
                     var topN = target.topN;
                     if (!isTop) {
@@ -299,11 +333,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             tags = target.tags;
                         }
                         else {
-                            lodash_1.default.forEach(Object.keys(target.tags), function (key) {
-                                var value = target.tags[key];
-                                value = _this.templateSrv.replace(value);
-                                tags[key] = value;
-                            });
+                            tags = this.preprocessTags(target);
                         }
                     }
                     var alias = target.alias;
@@ -410,14 +440,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     // Extract tags from results and run 'select' query
                     // nomrally.
                     var metricName = target.metric;
-                    var tags = {};
-                    if (target.tags) {
-                        lodash_1.default.forEach(Object.keys(target.tags), function (key) {
-                            var value = target.tags[key];
-                            value = _this.templateSrv.replace(value);
-                            tags[key] = value;
-                        });
-                    }
+                    var tags = this.preprocessTags(target);
                     var isTop = target.topN ? true : false;
                     var topN = target.topN;
                     if (!isTop) {
@@ -481,11 +504,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             tags = target.tags;
                         }
                         else {
-                            lodash_1.default.forEach(Object.keys(target.tags), function (key) {
-                                var value = target.tags[key];
-                                value = _this.templateSrv.replace(value);
-                                tags[key] = value;
-                            });
+                            tags = this.preprocessTags(target);
                         }
                     }
                     var alias = target.alias;

@@ -4,6 +4,7 @@ declare class AkumuliDatasource {
     private backendSrv;
     private templateSrv;
     private $q;
+    private limitMultiplyer;
     /** @ngInject */
     constructor(instanceSettings: any, backendSrv: any, templateSrv: any, $q: any);
     /** Test that datasource connection works */

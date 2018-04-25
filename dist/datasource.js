@@ -19,6 +19,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     this.templateSrv = templateSrv;
                     this.$q = $q;
                     this.templateSrv.formatValue = this.formatTagValue;
+                    this.limitMultiplyer = 10;
                 }
                 /** Test that datasource connection works */
                 AkumuliDatasource.prototype.testDatasource = function () {
@@ -288,7 +289,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                         },
                         where: tags,
                         "order-by": "series",
-                        apply: [{ name: "top", N: topN }]
+                        apply: [{ name: "top", N: topN }],
+                        limit: limit
                     };
                     var httpRequest = {
                         method: "POST",
@@ -361,7 +363,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                         },
                         where: tags,
                         "order-by": "series",
-                        apply: []
+                        apply: [],
+                        limit: limit
                     };
                     if (rate) {
                         query["apply"].push({ name: "rate" });
@@ -461,7 +464,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                         },
                         where: tags,
                         "order-by": "series",
-                        apply: [{ name: "top", N: topN }]
+                        apply: [{ name: "top", N: topN }],
+                        limit: limit
                     };
                     var httpRequest = {
                         method: "POST",
@@ -526,7 +530,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                         },
                         where: tags,
                         "order-by": "series",
-                        apply: []
+                        apply: [],
+                        limit: limit,
                     };
                     if (rate) {
                         query["apply"].push({ name: "rate" });
@@ -606,7 +611,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var begin = options.range.from.utc();
                     var end = options.range.to.utc();
                     var interval = options.interval;
-                    var limit = options.maxDataPoints; // TODO: don't ignore the limit
+                    var limit = options.maxDataPoints;
                     var allQueryPromise = lodash_1.default.map(options.targets, function (target) {
                         if (target.hide === true) {
                             return new Promise(function (resolve, reject) {

@@ -4,10 +4,12 @@ import _ from 'lodash';
 import moment from "moment";
 
 class AkumuliDatasource {
+  private limitMultiplyer: number;
 
   /** @ngInject */
   constructor(private instanceSettings, private backendSrv, private templateSrv, private $q) {
     this.templateSrv.formatValue = this.formatTagValue;
+    this.limitMultiplyer = 10;
   }
 
   /** Test that datasource connection works */
@@ -286,7 +288,8 @@ class AkumuliDatasource {
       },
       where: tags,
       "order-by": "series",
-      apply: [{name: "top", N: topN}]
+      apply: [{name: "top", N: topN}],
+      limit: limit
     };
 
     var httpRequest: any = {
@@ -359,7 +362,8 @@ class AkumuliDatasource {
       },
       where: tags,
       "order-by": "series",
-      apply: []
+      apply: [],
+      limit: limit
     };
     if (rate) {
       query["apply"].push({name: "rate"});
@@ -460,7 +464,8 @@ class AkumuliDatasource {
       },
       where: tags,
       "order-by": "series",
-      apply: [{name: "top", N: topN}]
+      apply: [{name: "top", N: topN}],
+      limit: limit
     };
 
     var httpRequest: any = {
@@ -526,7 +531,8 @@ class AkumuliDatasource {
       },
       where: tags,
       "order-by": "series",
-      apply: []
+      apply: [],
+      limit: limit,
     };
     if (rate) {
       query["apply"].push({name: "rate"});
@@ -607,7 +613,7 @@ class AkumuliDatasource {
     var begin    = options.range.from.utc();
     var end      = options.range.to.utc();
     var interval = options.interval;
-    var limit    = options.maxDataPoints;  // TODO: don't ignore the limit
+    var limit    = options.maxDataPoints;
     var allQueryPromise = _.map(options.targets, target => {
       if (target.hide === true) {
         return new Promise((resolve, reject) => {

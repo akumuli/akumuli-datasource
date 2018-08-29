@@ -8,8 +8,8 @@
   "alerting": true,
 
   "info": {
-    "version": "1.0.3",
-    "updated": "2018-01-01",
+    "version": "1.2.4",
+    "updated": "2018-08-20",
     "description": "Datasource plugin for Akumuli time-series database",
     "author": {
       "name": "Eugene Lazin",

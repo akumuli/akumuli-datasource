@@ -611,12 +611,13 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var begin = options.range.from.utc();
                     var end = options.range.to.utc();
                     var interval = options.interval;
-                    // This plugin uses maxDataPoints as `limit` value. This is not right because
-                    // Grafana expects the plugin to downsample the values instead of cutting the
-                    // latest ones. Downsampling is preformed explicitly in Akumuli datasource so
-                    // it uses `maxDataPoints` as a limit, but because `maxDataPoints` can be less
-                    // than `(end - begin)/step` it's multiplied by constant factor.
-                    var limit = options.maxDataPoints * 5;
+                    // This is a safety measure against overload of the browser. Akumuli can return more than one
+                    // Series for a single plot. Grafana's maxDataPoints value is not adequate as a limit value
+                    // because it's calculated for a single series and this plugin can't know in advance how many
+                    // series the query will return. So, the limit is set to some arbitrary high value (1M) that
+                    // wouldn't be exceded by any query, but at the same time, browser will be able to parse that
+                    // many data-points without hanging or crashing.
+                    var limit = 1000000;
                     var allQueryPromise = lodash_1.default.map(options.targets, function (target) {
                         if (target.hide === true) {
                             return new Promise(function (resolve, reject) {

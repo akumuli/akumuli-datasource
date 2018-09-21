@@ -349,7 +349,7 @@ class AkumuliDatasource {
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
-    var samplingInterval = target.downsampleInterval || interval;
+    var samplingInterval = this.templateSrv.replace(target.downsampleInterval || interval);
     var query: any = {
       "group-aggregate": {
         metric: metricName,

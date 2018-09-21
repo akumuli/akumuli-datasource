@@ -350,7 +350,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var rate = target.shouldComputeRate;
                     var ewma = target.shouldEWMA;
                     var decay = target.decay || 0.5;
-                    var samplingInterval = target.downsampleInterval || interval;
+                    var samplingInterval = this.templateSrv.replace(target.downsampleInterval || interval);
                     var query = {
                         "group-aggregate": {
                             metric: metricName,

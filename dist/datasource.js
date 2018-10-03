@@ -321,6 +321,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                         });
                         var newTarget = {
                             metric: metricName,
+                            alias: target.alias,
                             tags: _this.extractTags(series_names),
                             shouldComputeRate: target.shouldComputeRate,
                             shouldEWMA: target.shouldEWMA,
@@ -495,6 +496,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             index++;
                         });
                         var newTarget = {
+                            alias: target.alias,
                             metric: metricName,
                             tags: _this.extractTags(series_names),
                             shouldComputeRate: target.shouldComputeRate,

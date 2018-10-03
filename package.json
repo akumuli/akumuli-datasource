@@ -1,6 +1,6 @@
 {
   "name": "akumuli-datasource",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Grafana datasource plugin for Akumuli Time-Series Database.",
   "scripts": {
     "build": "grunt",

@@ -283,8 +283,8 @@ class AkumuliDatasource {
     var query: any = {
       select: metricName,
       range: {
-        from: begin.format('YYYYMMDDTHHmmss.SSS'),
-        to: end.format('YYYYMMDDTHHmmss.SSS')
+        from: end.format('YYYYMMDDTHHmmss.SSS'),
+        to: begin.format('YYYYMMDDTHHmmss.SSS')
       },
       where: tags,
       "order-by": "series",
@@ -358,8 +358,8 @@ class AkumuliDatasource {
         func: [ aggFunc ]
       },
       range: {
-        from: begin.format('YYYYMMDDTHHmmss.SSS'),
-        to: end.format('YYYYMMDDTHHmmss.SSS')
+        from: end.format('YYYYMMDDTHHmmss.SSS'),
+        to: begin.format('YYYYMMDDTHHmmss.SSS')
       },
       where: tags,
       "order-by": "series",
@@ -460,8 +460,8 @@ class AkumuliDatasource {
     var query: any = {
       "select": metricName,
       range: {
-        from: begin.format('YYYYMMDDTHHmmss.SSS'),
-        to: end.format('YYYYMMDDTHHmmss.SSS')
+        from: end.format('YYYYMMDDTHHmmss.SSS'),
+        to: begin.format('YYYYMMDDTHHmmss.SSS')
       },
       where: tags,
       "order-by": "series",
@@ -528,8 +528,8 @@ class AkumuliDatasource {
     var query: any = {
       "select": metricName,
       range: {
-        from: begin.format('YYYYMMDDTHHmmss.SSS'),
-        to: end.format('YYYYMMDDTHHmmss.SSS')
+        from: end.format('YYYYMMDDTHHmmss.SSS'),
+        to: begin.format('YYYYMMDDTHHmmss.SSS')
       },
       where: tags,
       "order-by": "series",

@@ -284,8 +284,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var query = {
                         select: metricName,
                         range: {
-                            from: begin.format('YYYYMMDDTHHmmss.SSS'),
-                            to: end.format('YYYYMMDDTHHmmss.SSS')
+                            from: end.format('YYYYMMDDTHHmmss.SSS'),
+                            to: begin.format('YYYYMMDDTHHmmss.SSS')
                         },
                         where: tags,
                         "order-by": "series",
@@ -359,8 +359,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                             func: [aggFunc]
                         },
                         range: {
-                            from: begin.format('YYYYMMDDTHHmmss.SSS'),
-                            to: end.format('YYYYMMDDTHHmmss.SSS')
+                            from: end.format('YYYYMMDDTHHmmss.SSS'),
+                            to: begin.format('YYYYMMDDTHHmmss.SSS')
                         },
                         where: tags,
                         "order-by": "series",
@@ -460,8 +460,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var query = {
                         "select": metricName,
                         range: {
-                            from: begin.format('YYYYMMDDTHHmmss.SSS'),
-                            to: end.format('YYYYMMDDTHHmmss.SSS')
+                            from: end.format('YYYYMMDDTHHmmss.SSS'),
+                            to: begin.format('YYYYMMDDTHHmmss.SSS')
                         },
                         where: tags,
                         "order-by": "series",
@@ -527,8 +527,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var query = {
                         "select": metricName,
                         range: {
-                            from: begin.format('YYYYMMDDTHHmmss.SSS'),
-                            to: end.format('YYYYMMDDTHHmmss.SSS')
+                            from: end.format('YYYYMMDDTHHmmss.SSS'),
+                            to: begin.format('YYYYMMDDTHHmmss.SSS')
                         },
                         where: tags,
                         "order-by": "series",

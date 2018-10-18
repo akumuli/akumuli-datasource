@@ -47,7 +47,7 @@ This option can be enabled if the time-series that you need to display is a coun
 
 ## Templating
 
-The datasource supports templating feature. The only supported variable type is "Query". The query format is the following: `<metric-name> <tag-name>`. For instance, if you want to fetch the list of hosts from the database and you have the metric name called `state` and the host names are encoded using the `endpoint` tag, you can careate the variable with name "Endpoint" and query string `state endpoint`. After that you can create a dashboard and use the name `$Endpoint` as `endpoint` tag value instead of the actual address.
+The datasource supports templating feature. Supported variable types are "Query" and "Interval". The query format is the following: `<metric-name> <tag-name>`. For instance, if you want to fetch the list of hosts from the database and you have the metric name called `state` and the host names are encoded using the `endpoint` tag, you can careate the variable with name "Endpoint" and query string `state endpoint`. After that you can create a dashboard and use the name `$Endpoint` as `endpoint` tag value instead of the actual address. The "Interval" template variable can be used with `Downsample` control.
 
 ![Template variable creation](https://raw.githubusercontent.com/akumuli/akumuli-datasource/master/create_template.png)
 

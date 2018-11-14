@@ -429,6 +429,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             }
                             index++;
                         });
+                        datapoints.reverse();
                         if (datapoints.length !== 0) {
                             data.push({
                                 target: currentTarget,
@@ -594,6 +595,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             }
                             index++;
                         });
+                        datapoints.reverse();
                         if (datapoints.length !== 0) {
                             data.push({
                                 target: currentTarget,

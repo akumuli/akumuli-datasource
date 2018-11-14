@@ -429,6 +429,7 @@ class AkumuliDatasource {
         }
         index++;
       });
+      datapoints.reverse();
       if (datapoints.length !== 0) {
         data.push({
           target: currentTarget,
@@ -595,6 +596,7 @@ class AkumuliDatasource {
         }
         index++;
       });
+      datapoints.reverse();
       if (datapoints.length !== 0) {
         data.push({
           target: currentTarget,

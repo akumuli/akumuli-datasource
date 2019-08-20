@@ -99,7 +99,10 @@ System.register(['lodash', "moment"], function(exports_1) {
                         lodash_1.default.forEach(lines, function (line) {
                             if (line) {
                                 var name = line.substr(1);
-                                data.push({ text: name, value: name });
+                                if (!name.startsWith("!")) {
+                                    // Filter out event names here
+                                    data.push({ text: name, value: name });
+                                }
                             }
                         });
                         return data;
@@ -173,6 +176,9 @@ System.register(['lodash', "moment"], function(exports_1) {
                         if (res.status === 'error') {
                             throw res.error;
                         }
+                        if (res.data.charAt(0) === '-not found') {
+                            return data;
+                        }
                         if (res.data.charAt(0) === '-') {
                             throw { message: "Query error: " + res.data.substr(1) };
                         }
@@ -198,9 +204,10 @@ System.register(['lodash', "moment"], function(exports_1) {
                             }
                             if (step === 2) {
                                 var event_1 = {
-                                    annotation: series,
+                                    annotation: target.annotation,
+                                    title: series,
                                     time: timestamp,
-                                    text: value,
+                                    text: value
                                 };
                                 data.push(event_1);
                             }
@@ -332,11 +339,14 @@ System.register(['lodash', "moment"], function(exports_1) {
                     return tags;
                 };
                 AkumuliDatasource.prototype.parseTags = function (tagsString) {
+                    var _this = this;
                     var tags = {};
                     var lst = tagsString.split(" ");
                     lodash_1.default.forEach(lst, function (kvpair) {
-                        var vals = kvpair.split("=");
-                        tags[vals[0]] = vals[1];
+                        var items = kvpair.split("=");
+                        var key = items[0];
+                        var value = _this.templateSrv.replace(items[1]);
+                        tags[key] = value;
                     });
                     return tags;
                 };

@@ -90,7 +90,10 @@ class AkumuliDatasource {
       _.forEach(lines, line => {
         if (line) {
           var name = line.substr(1);
-          data.push({text: name, value: name});
+          if (!name.startsWith("!")) {
+            // Filter out event names here
+            data.push({text: name, value: name});
+          }
         }
       });
       return data;
@@ -169,6 +172,9 @@ class AkumuliDatasource {
       if (res.status === 'error') {
         throw res.error;
       }
+      if (res.data.charAt(0) === '-not found') {
+        return data;
+      }
       if (res.data.charAt(0) === '-') {
         throw { message: "Query error: " + res.data.substr(1) };
       }
@@ -194,9 +200,10 @@ class AkumuliDatasource {
         }
         if (step === 2) {
           const event = {
-            annotation: series,
+            annotation: target.annotation,
+            title: series,
             time: timestamp,
-            text: value,
+            text: value
           };
           data.push(event);
         }
@@ -337,8 +344,10 @@ class AkumuliDatasource {
     var tags = {};
     var lst = tagsString.split(" ");
     _.forEach(lst, kvpair => {
-      var vals = kvpair.split("=");
-      tags[vals[0]] = vals[1];
+      var items = kvpair.split("=");
+      var key = items[0];
+      var value = this.templateSrv.replace(items[1]);
+      tags[key] = value;
     });
     return tags;
   }

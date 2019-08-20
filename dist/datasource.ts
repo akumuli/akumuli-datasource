@@ -132,11 +132,77 @@ class AkumuliDatasource {
   }
 
   annotationQuery(options) {
-    return this.backendSrv.get('/api/annotations', {
-      from: options.range.from.valueOf(),
-      to: options.range.to.valueOf(),
-      limit: options.limit,
-      type: options.type,
+    var begin    = options.range.from.utc();
+    var end      = options.range.to.utc();
+    var limit    = 1000000;
+    return this.selectEvents(begin, end, limit, options);
+  }
+
+  selectEvents(begin, end, limit, target) {
+    var eventName = target.annotation.event;
+    if (eventName.startsWith("!") === false) {
+      eventName = "!" + eventName;
+    }
+    var tags = {};
+    if (target.annotation.tags) {
+      tags = this.parseTags(target.annotation.tags);
+    }
+    var query: any = {
+      "select-events": eventName,
+      range: {
+        from: end.format('YYYYMMDDTHHmmss.SSS'),
+        to: begin.format('YYYYMMDDTHHmmss.SSS')
+      },
+      where: tags,
+      "order-by": "series",
+      apply: [],
+      limit: limit,
+    };
+    var httpRequest: any = {
+      method: "POST",
+      url: this.instanceSettings.url + "/api/query",
+      data: query
+    };
+
+    return this.backendSrv.datasourceRequest(httpRequest).then(res => {
+      var data = [];
+      if (res.status === 'error') {
+        throw res.error;
+      }
+      if (res.data.charAt(0) === '-') {
+        throw { message: "Query error: " + res.data.substr(1) };
+      }
+      var lines = res.data.split("\r\n");
+      var index = 0;
+      var series = null;
+      var timestamp = null;
+      var value = "";
+      _.forEach(lines, line => {
+        let step = index % 3;
+        switch (step) {
+          case 0:
+            // parse series name
+            series = line.substr(1);
+            break;
+          case 1:
+            // parse timestamp
+            timestamp = moment.utc(line.substr(1)).local();
+            break;
+          case 2:
+            value = line.substr(1);
+            break;
+        }
+        if (step === 2) {
+          const event = {
+            annotation: series,
+            time: timestamp,
+            text: value,
+          };
+          data.push(event);
+        }
+        index++;
+      });
+      return data;
     });
   }
 
@@ -264,6 +330,16 @@ class AkumuliDatasource {
         }
       });
     }
+    return tags;
+  }
+
+  parseTags(tagsString) {
+    var tags = {};
+    var lst = tagsString.split(" ");
+    _.forEach(lst, kvpair => {
+      var vals = kvpair.split("=");
+      tags[vals[0]] = vals[1];
+    });
     return tags;
   }
 

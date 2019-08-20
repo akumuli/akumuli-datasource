@@ -16,11 +16,13 @@ declare class AkumuliDatasource {
     extractTags(names: any): any[];
     convertSeriesName(template: string, name: string): string;
     annotationQuery(options: any): any;
+    selectEvents(begin: any, end: any, limit: any, target: any): any;
     getAggregators(): Promise<{}>;
     suggestTagKeys(metric: any, tagPrefix: any): any;
     suggestTagValues(metric: any, tagName: any, valuePrefix: any, addTemplateVars: any): any;
     formatTagValue(value: any): any;
     preprocessTags(target: any): {};
+    parseTags(tagsString: any): {};
     /** Query time-series storage */
     groupAggregateTopNQuery(begin: any, end: any, interval: any, limit: any, target: any): any;
     /** Query time-series storage */

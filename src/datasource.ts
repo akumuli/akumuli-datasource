@@ -172,7 +172,7 @@ class AkumuliDatasource {
       if (res.status === 'error') {
         throw res.error;
       }
-      if (res.data.charAt(0) === '-not found') {
+      if (res.data.startsWith('-not found')) {
         return data;
       }
       if (res.data.charAt(0) === '-') {

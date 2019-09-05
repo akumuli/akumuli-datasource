@@ -148,6 +148,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                 };
                 AkumuliDatasource.prototype.selectEvents = function (begin, end, limit, target) {
                     var eventName = target.annotation.event;
+                    var eventFilter = target.annotation.event_filter;
                     if (eventName.startsWith("!") === false) {
                         eventName = "!" + eventName;
                     }
@@ -157,6 +158,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     }
                     var query = {
                         "select-events": eventName,
+                        filter: eventFilter,
                         range: {
                             from: end.format('YYYYMMDDTHHmmss.SSS'),
                             to: begin.format('YYYYMMDDTHHmmss.SSS')

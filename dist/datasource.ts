@@ -143,6 +143,7 @@ class AkumuliDatasource {
 
   selectEvents(begin, end, limit, target) {
     var eventName = target.annotation.event;
+    var eventFilter = target.annotation.event_filter;
     if (eventName.startsWith("!") === false) {
       eventName = "!" + eventName;
     }
@@ -152,6 +153,7 @@ class AkumuliDatasource {
     }
     var query: any = {
       "select-events": eventName,
+      filter: eventFilter,
       range: {
         from: end.format('YYYYMMDDTHHmmss.SSS'),
         to: begin.format('YYYYMMDDTHHmmss.SSS')

@@ -99,7 +99,10 @@ System.register(['lodash', "moment"], function(exports_1) {
                         lodash_1.default.forEach(lines, function (line) {
                             if (line) {
                                 var name = line.substr(1);
-                                data.push({ text: name, value: name });
+                                if (!name.startsWith("!")) {
+                                    // Filter out event names here
+                                    data.push({ text: name, value: name });
+                                }
                             }
                         });
                         return data;
@@ -138,11 +141,81 @@ System.register(['lodash', "moment"], function(exports_1) {
                     return result;
                 };
                 AkumuliDatasource.prototype.annotationQuery = function (options) {
-                    return this.backendSrv.get('/api/annotations', {
-                        from: options.range.from.valueOf(),
-                        to: options.range.to.valueOf(),
-                        limit: options.limit,
-                        type: options.type,
+                    var begin = options.range.from.utc();
+                    var end = options.range.to.utc();
+                    var limit = 1000000;
+                    return this.selectEvents(begin, end, limit, options);
+                };
+                AkumuliDatasource.prototype.selectEvents = function (begin, end, limit, target) {
+                    var eventName = target.annotation.event;
+                    var eventFilter = target.annotation.event_filter;
+                    if (eventName.startsWith("!") === false) {
+                        eventName = "!" + eventName;
+                    }
+                    var tags = {};
+                    if (target.annotation.tags) {
+                        tags = this.parseTags(target.annotation.tags);
+                    }
+                    var query = {
+                        "select-events": eventName,
+                        filter: eventFilter,
+                        range: {
+                            from: end.format('YYYYMMDDTHHmmss.SSS'),
+                            to: begin.format('YYYYMMDDTHHmmss.SSS')
+                        },
+                        where: tags,
+                        "order-by": "series",
+                        apply: [],
+                        limit: limit,
+                    };
+                    var httpRequest = {
+                        method: "POST",
+                        url: this.instanceSettings.url + "/api/query",
+                        data: query
+                    };
+                    return this.backendSrv.datasourceRequest(httpRequest).then(function (res) {
+                        var data = [];
+                        if (res.status === 'error') {
+                            throw res.error;
+                        }
+                        if (res.data.startsWith('-not found')) {
+                            return data;
+                        }
+                        if (res.data.charAt(0) === '-') {
+                            throw { message: "Query error: " + res.data.substr(1) };
+                        }
+                        var lines = res.data.split("\r\n");
+                        var index = 0;
+                        var series = null;
+                        var timestamp = null;
+                        var value = "";
+                        lodash_1.default.forEach(lines, function (line) {
+                            var step = index % 3;
+                            switch (step) {
+                                case 0:
+                                    // parse series name
+                                    series = line.substr(1);
+                                    break;
+                                case 1:
+                                    // parse timestamp
+                                    timestamp = moment_1.default.utc(line.substr(1)).local();
+                                    break;
+                                case 2:
+                                    value = line.substr(1);
+                                    break;
+                            }
+                            if (step === 2) {
+                                var event_1 = {
+                                    annotation: target.annotation,
+                                    title: series,
+                                    time: timestamp,
+                                    text: value
+                                };
+                                data.push(event_1);
+                            }
+                            index++;
+                        });
+                        return data;
                     });
                 };
                 AkumuliDatasource.prototype.getAggregators = function () {
@@ -265,6 +338,18 @@ System.register(['lodash', "moment"], function(exports_1) {
                             }
                         });
                     }
+                    return tags;
+                };
+                AkumuliDatasource.prototype.parseTags = function (tagsString) {
+                    var _this = this;
+                    var tags = {};
+                    var lst = tagsString.split(" ");
+                    lodash_1.default.forEach(lst, function (kvpair) {
+                        var items = kvpair.split("=");
+                        var key = items[0];
+                        var value = _this.templateSrv.replace(items[1]);
+                        tags[key] = value;
+                    });
                     return tags;
                 };
                 /** Query time-series storage */

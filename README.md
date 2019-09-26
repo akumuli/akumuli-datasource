@@ -55,7 +55,7 @@ The datasource supports templating feature. Supported variable types are "Query"
 
 Akumuli datasource supports annotations. It is possible to use template variables in annotations editor. This fature requires Akumuli v0.8.70 or higher.
 
-![Dashboard alert](dashboard-alert.png)
+![Dashboard alert](https://raw.githubusercontent.com/akumuli/akumuli-datasource/master/dashboard-alert.png)
 
 ## How to build
 

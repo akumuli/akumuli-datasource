@@ -432,6 +432,7 @@ class AkumuliDatasource {
         tags = this.preprocessTags(target);
       }
     }
+    var shift = this.getTimeShift(target);
     var alias = target.alias;
     var aggFunc = target.downsampleAggregator;
     var rate = target.shouldComputeRate;
@@ -492,6 +493,9 @@ class AkumuliDatasource {
           case 1:
             // parse timestamp
             timestamp = moment.utc(line.substr(1)).local();
+            if (shift != null) {
+              timestamp.add(shift);
+            }
             break;
           case 2:
             break;
@@ -600,6 +604,7 @@ class AkumuliDatasource {
   /** Query time-series storage */
   selectTargetQuery(begin, end, limit, target) {
     var metricName = target.metric;
+    var shift = this.getTimeShift(target);
     var tags = {};
     if (target.tags) {
       if (target.tags instanceof Array) {
@@ -661,6 +666,9 @@ class AkumuliDatasource {
           case 1:
             // parse timestamp
             timestamp = moment.utc(line.substr(1)).local();
+            if (shift != null) {
+              timestamp.add(shift);
+            }
             break;
           case 2:
             value = parseFloat(line.substr(1));
@@ -699,10 +707,20 @@ class AkumuliDatasource {
     });
   }
 
+  getTimeShift(target) {
+    var isShift  = target.timeshift ? true : false;
+    var shift    = null;
+    if (isShift) {
+      var components = target.timeshift.split(" ");
+      if (components.length === 2) {
+        shift = moment.duration(parseInt(components[0]), components[1]);
+      }
+    }
+    return shift;
+  }
+
 
   query(options) {
-    var begin    = options.range.from.utc();
-    var end      = options.range.to.utc();
     var interval = options.interval;
     // This is a safety measure against overload of the browser. Akumuli can return more than one
     // Series for a single plot. Grafana's maxDataPoints value is not adequate as a limit value
@@ -712,6 +730,13 @@ class AkumuliDatasource {
     // many data-points without hanging or crashing.
     var limit    = 1000000;
     var allQueryPromise = _.map(options.targets, target => {
+      var begin    = options.range.from.utc();
+      var end      = options.range.to.utc();
+      var shift    = this.getTimeShift(target);
+      if (shift != null) {
+        begin.subtract(shift);
+        end.subtract(shift);
+      }
       if (target.hide === true) {
         return new Promise((resolve, reject) => {
           resolve([]);

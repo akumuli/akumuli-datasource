@@ -431,6 +431,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                             tags = this.preprocessTags(target);
                         }
                     }
+                    var shift = this.getTimeShift(target);
                     var alias = target.alias;
                     var aggFunc = target.downsampleAggregator;
                     var rate = target.shouldComputeRate;
@@ -489,6 +490,9 @@ System.register(['lodash', "moment"], function(exports_1) {
                                 case 1:
                                     // parse timestamp
                                     timestamp = moment_1.default.utc(line.substr(1)).local();
+                                    if (shift != null) {
+                                        timestamp.add(shift);
+                                    }
                                     break;
                                 case 2:
                                     break;
@@ -596,6 +600,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                 AkumuliDatasource.prototype.selectTargetQuery = function (begin, end, limit, target) {
                     var _this = this;
                     var metricName = target.metric;
+                    var shift = this.getTimeShift(target);
                     var tags = {};
                     if (target.tags) {
                         if (target.tags instanceof Array) {
@@ -657,6 +662,9 @@ System.register(['lodash', "moment"], function(exports_1) {
                                 case 1:
                                     // parse timestamp
                                     timestamp = moment_1.default.utc(line.substr(1)).local();
+                                    if (shift != null) {
+                                        timestamp.add(shift);
+                                    }
                                     break;
                                 case 2:
                                     value = parseFloat(line.substr(1));
@@ -695,10 +703,19 @@ System.register(['lodash', "moment"], function(exports_1) {
                         return data;
                     });
                 };
+                AkumuliDatasource.prototype.getTimeShift = function (target) {
+                    var isShift = target.timeshift ? true : false;
+                    var shift = null;
+                    if (isShift) {
+                        var components = target.timeshift.split(" ");
+                        if (components.length === 2) {
+                            shift = moment_1.default.duration(parseInt(components[0]), components[1]);
+                        }
+                    }
+                    return shift;
+                };
                 AkumuliDatasource.prototype.query = function (options) {
                     var _this = this;
-                    var begin = options.range.from.utc();
-                    var end = options.range.to.utc();
                     var interval = options.interval;
                     // This is a safety measure against overload of the browser. Akumuli can return more than one
                     // Series for a single plot. Grafana's maxDataPoints value is not adequate as a limit value
@@ -708,6 +725,13 @@ System.register(['lodash', "moment"], function(exports_1) {
                     // many data-points without hanging or crashing.
                     var limit = 1000000;
                     var allQueryPromise = lodash_1.default.map(options.targets, function (target) {
+                        var begin = options.range.from.utc();
+                        var end = options.range.to.utc();
+                        var shift = _this.getTimeShift(target);
+                        if (shift != null) {
+                            begin.subtract(shift);
+                            end.subtract(shift);
+                        }
                         if (target.hide === true) {
                             return new Promise(function (resolve, reject) {
                                 resolve([]);

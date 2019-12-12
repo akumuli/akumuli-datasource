@@ -167,5 +167,22 @@
 		</div>
 
 	</div>
+
+	<div class="gf-form-inline">
+	    <div class="gf-form max-width-25">
+			<label class="gf-form-label query-keyword width-8">Time Shift</label>
+			<input type="text" class="gf-form-input"
+						 ng-model="ctrl.target.timeshift"
+						 ng-model-onblur
+			       ng-change="ctrl.targetBlur()"
+			       placeholder="Shift query interval"></input>
+			<info-popover mode="right-absolute">
+				blank to disable, or for example <code>1 M</code> or <code>1 Y</code>
+			</info-popover>
+		</div>
+		<div class="gf-form gf-form--grow">
+			<div class="gf-form-label gf-form-label--grow"></div>
+		</div>
+	</div>
 </query-editor-row>
 

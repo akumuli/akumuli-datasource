@@ -489,10 +489,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                                     break;
                                 case 1:
                                     // parse timestamp
-                                    timestamp = moment_1.default.utc(line.substr(1)).local();
+                                    timestamp = moment_1.default.utc(line.substr(1));
                                     if (shift != null) {
                                         timestamp.add(shift);
                                     }
+                                    timestamp = timestamp.local();
                                     break;
                                 case 2:
                                     break;
@@ -661,10 +662,11 @@ System.register(['lodash', "moment"], function(exports_1) {
                                     break;
                                 case 1:
                                     // parse timestamp
-                                    timestamp = moment_1.default.utc(line.substr(1)).local();
+                                    timestamp = moment_1.default.utc(line.substr(1));
                                     if (shift != null) {
                                         timestamp.add(shift);
                                     }
+                                    timestamp = timestamp.local();
                                     break;
                                 case 2:
                                     value = parseFloat(line.substr(1));
@@ -707,10 +709,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var isShift = target.timeshift ? true : false;
                     var shift = null;
                     if (isShift) {
-                        var components = target.timeshift.split(" ");
-                        if (components.length === 2) {
-                            shift = moment_1.default.duration(parseInt(components[0]), components[1]);
-                        }
+                        var ts = target.timeshift.trim();
+                        shift = moment_1.default.duration(-1 * parseInt(ts.slice(0, -1)), ts.slice(ts.length - 1));
                     }
                     return shift;
                 };
@@ -725,8 +725,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                     // many data-points without hanging or crashing.
                     var limit = 1000000;
                     var allQueryPromise = lodash_1.default.map(options.targets, function (target) {
-                        var begin = options.range.from.utc();
-                        var end = options.range.to.utc();
+                        var begin = options.range.from.clone().utc();
+                        var end = options.range.to.clone().utc();
                         var shift = _this.getTimeShift(target);
                         if (shift != null) {
                             begin.subtract(shift);

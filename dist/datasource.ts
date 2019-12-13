@@ -492,10 +492,11 @@ class AkumuliDatasource {
             break;
           case 1:
             // parse timestamp
-            timestamp = moment.utc(line.substr(1)).local();
+            timestamp = moment.utc(line.substr(1));
             if (shift != null) {
               timestamp.add(shift);
             }
+            timestamp = timestamp.local();
             break;
           case 2:
             break;
@@ -665,10 +666,11 @@ class AkumuliDatasource {
             break;
           case 1:
             // parse timestamp
-            timestamp = moment.utc(line.substr(1)).local();
+            timestamp = moment.utc(line.substr(1));
             if (shift != null) {
               timestamp.add(shift);
             }
+            timestamp = timestamp.local();
             break;
           case 2:
             value = parseFloat(line.substr(1));
@@ -711,10 +713,8 @@ class AkumuliDatasource {
     var isShift  = target.timeshift ? true : false;
     var shift    = null;
     if (isShift) {
-      var components = target.timeshift.split(" ");
-      if (components.length === 2) {
-        shift = moment.duration(parseInt(components[0]), components[1]);
-      }
+      var ts = target.timeshift.trim();
+      shift = moment.duration(-1*parseInt(ts.slice(0, -1)), ts.slice(ts.length - 1));
     }
     return shift;
   }
@@ -730,8 +730,8 @@ class AkumuliDatasource {
     // many data-points without hanging or crashing.
     var limit    = 1000000;
     var allQueryPromise = _.map(options.targets, target => {
-      var begin    = options.range.from.utc();
-      var end      = options.range.to.utc();
+      var begin    = options.range.from.clone().utc();
+      var end      = options.range.to.clone().utc();
       var shift    = this.getTimeShift(target);
       if (shift != null) {
         begin.subtract(shift);

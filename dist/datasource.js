@@ -710,7 +710,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var shift = null;
                     if (isShift) {
                         var ts = target.timeshift.trim();
-                        shift = moment_1.default.duration(-1 * parseInt(ts.slice(0, -1)), ts.slice(ts.length - 1));
+                        shift = moment_1.default.duration(parseInt(ts.slice(0, -1)), ts.slice(ts.length - 1));
                     }
                     return shift;
                 };

@@ -14,7 +14,7 @@
 		</div>
 
 		<div class="gf-form max-width-25">
-			<label class="gf-form-label query-keyword width-8">
+			<label class="gf-form-label query-keyword width-6">
 				Alias
 				<label class="gf-form-label" 
 					   bs-tooltip="ctrl.errors.metric" 
@@ -95,7 +95,7 @@
 	<div class="gf-form-inline">
 	    <div class="gf-form max-width-25">
 			<label class="gf-form-label query-keyword width-8">Top-N</label>
-			<input type="text" class="gf-form-input"
+			<input type="text" class="gf-form-input max-width-8"
 						 ng-model="ctrl.target.topN"
 						 ng-model-onblur
 			       ng-change="ctrl.targetBlur()"
@@ -123,7 +123,7 @@
 		</div>
 
 		<div class="gf-form">
-			<label class="gf-form-label query-keyword">Aggregator</label>
+			<label class="gf-form-label query-keyword">Func</label>
 			<div class="gf-form-select-wrapper">
 				<select ng-model="ctrl.target.downsampleAggregator" class="gf-form-input"
 								ng-options="agg for agg in ctrl.aggregators"
@@ -133,14 +133,17 @@
 		</div>
 
 		<gf-form-switch class="gf-form"
-										label="Disable downsampling"
+										label="Raw"
                     label-class="query-keyword"
 										checked="ctrl.target.disableDownsampling"
 										on-change="ctrl.targetBlur()">
 		</gf-form-switch>
 
-		<gf-form-switch class="gf-form" label="Rate" label-class="width-6 query-keyword" checked="ctrl.target.shouldComputeRate" on-change="ctrl.targetBlur()">
-		</gf-form-switch>
+		<gf-form-switch class="gf-form" 
+										label="Rate" 
+										label-class="query-keyword" 
+										checked="ctrl.target.shouldComputeRate" 
+										on-change="ctrl.targetBlur()"/>
 		<!--
 		<gf-form-switch ng-hide="!ctrl.target.shouldComputeRate"
 										class="gf-form" label="Counter" label-class="query-keyword" checked="ctrl.target.isCounter" on-change="ctrl.targetBlur()">
@@ -169,15 +172,19 @@
 	</div>
 
 	<div class="gf-form-inline">
-	    <div class="gf-form max-width-25">
+		<div class="gf-form max-width-25">
 			<label class="gf-form-label query-keyword width-8">Time Shift</label>
-			<input type="text" class="gf-form-input"
-						 ng-model="ctrl.target.timeshift"
-						 ng-model-onblur
-			       ng-change="ctrl.targetBlur()"
-			       placeholder="Shift query interval"></input>
+			<input type="text" class="gf-form-input" ng-model="ctrl.target.timeshift" ng-model-onblur
+				ng-change="ctrl.targetBlur()" placeholder="Shift query interval"></input>
 			<info-popover mode="right-absolute">
-				blank to disable, or for example <code>1 M</code> or <code>1 Y</code>
+				blank to disable, or for instance <code>1M</code> or <code>1y</code> for one month and one year shift, time interval literals:<br/>
+				<code>s</code> - seconds<br/>
+				<code>m</code> - minutes<br/>
+				<code>h</code> - hours<br/>
+				<code>d</code> - days<br/>
+				<code>w</code> - weeks<br/>
+				<code>M</code> - months<br/>
+				<code>y</code> - years<br/>
 			</info-popover>
 		</div>
 		<div class="gf-form gf-form--grow">

@@ -714,7 +714,7 @@ class AkumuliDatasource {
     var shift    = null;
     if (isShift) {
       var ts = target.timeshift.trim();
-      shift = moment.duration(-1*parseInt(ts.slice(0, -1)), ts.slice(ts.length - 1));
+      shift = moment.duration(parseInt(ts.slice(0, -1)), ts.slice(ts.length - 1));
     }
     return shift;
   }

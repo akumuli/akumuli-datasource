@@ -28,9 +28,7 @@ To install the plugin simply clone this repository to your Grafana's plugins dir
 
 You can set the metric name and tags using the `Metrics` tab. Note that the query can return many time-series. If you wouldn't provide the tags, Akumuli will return all time-series that start with this metric name. To choose a subset of series from the metric one can use `Tags` control. You can provide more than one value for each tag. Values should be space separated. Autocomplete works for metric names, tag names, and tag values.
 
-#### Top-N
-
-If your query returns many series you may want to choose only some of them. This control allows you to specify how many series should be returned. All series will be ordered by the area under the graph and the top N of them will be returned. Leave this control empty to return all the data.
+When the query returns many series it can be overwhelming. It makes sense to limit number of displayer series. `Top-N` allows you to specify max number series that should be returned. All series will be ordered by the area under the graph and the top N of them will be returned. Leave this control empty to return all series.
 
 ### Alias
 

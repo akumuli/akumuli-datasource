@@ -28,18 +28,16 @@ To install the plugin simply clone this repository to your Grafana's plugins dir
 
 You can set the metric name and tags using the `Metrics` tab. Note that the query can return many time-series. If you wouldn't provide the tags, Akumuli will return all time-series that start with this metric name. To choose a subset of series from the metric one can use `Tags` control. You can provide more than one value for each tag. Values should be space separated. Autocomplete works for metric names, tag names, and tag values.
 
+When the query returns many series it can be overwhelming. It makes sense to limit number of displayer series. `Top-N` allows you to specify max number series that should be returned. All series will be ordered by the area under the graph and the top N of them will be returned. Leave this control empty to return all series.
+
 ### Alias
 
 The `Alias` textbox can be used to provide alternative representation for the series name. You can use some plain text or you can use a template. The template can contain tag names prefixed with the '$' symbol. This names will be replaced with the tag values. For instance, if the series name is `proc.net.bytes direction=in host=dev iface=eth0` and the template is `$iface bytes $direction` the series name will be transformed into `eth0 bytes in`.
 ![Template variable creation](https://raw.githubusercontent.com/akumuli/akumuli-datasource/master/aliasing.png)
 
-### Top-N
-
-If your query returns many series you may want to choose only some of them. This control allows you to specify how many series should be returned. All series will be ordered by the area under the graph and the top N of them will be returned. Leave this control empty to return all the data.
-
 ### Downsampling
 
-You can change the downsampling interval using the `Downsample` control. If you'll leave it empty, Grafana will choose a meaningful default value. You can choose the aggregation function using the `Aggregator` control. The values will be downsampled using the specified value. The downsampling can be disabled using the `Disable downsampling` checkbox. Please be careful with this option since it may slow down your dashboard or overwhelm it with data.
+You can change the downsampling interval using the `Downsample` control. If you'll leave it empty, Grafana will choose a meaningful default value. You can choose the aggregation function using the `Func` control. The values will be downsampled using the specified value. The downsampling can be disabled using the `Raw` checkbox. Please be careful with this option since it may slow down your dashboard or overwhelm it with data.
 
 ### Rate
 
@@ -55,7 +53,7 @@ The datasource supports templating feature. Supported variable types are "Query"
 
 Akumuli datasource supports annotations. It is possible to use template variables in annotations editor. This fature requires Akumuli v0.8.70 or higher.
 
-![Dashboard alert](dashboard-alert.png)
+![Dashboard alert](https://raw.githubusercontent.com/akumuli/akumuli-datasource/master/dashboard-alert.png)
 
 ## How to build
 

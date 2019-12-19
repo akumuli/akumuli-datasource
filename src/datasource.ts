@@ -409,6 +409,7 @@ class AkumuliDatasource {
       });
       var newTarget = {
         metric: metricName,
+        timeshift: target.timeshift,
         alias: target.alias,
         tags: this.extractTags(series_names),
         shouldComputeRate: target.shouldComputeRate,
@@ -432,6 +433,7 @@ class AkumuliDatasource {
         tags = this.preprocessTags(target);
       }
     }
+    var shift = this.getTimeShift(target);
     var alias = target.alias;
     var aggFunc = target.downsampleAggregator;
     var rate = target.shouldComputeRate;
@@ -491,7 +493,11 @@ class AkumuliDatasource {
             break;
           case 1:
             // parse timestamp
-            timestamp = moment.utc(line.substr(1)).local();
+            timestamp = moment.utc(line.substr(1));
+            if (shift != null) {
+              timestamp.add(shift);
+            }
+            timestamp = timestamp.local();
             break;
           case 2:
             break;
@@ -586,8 +592,9 @@ class AkumuliDatasource {
         index++;
       });
       var newTarget = {
-        alias: target.alias,
         metric: metricName,
+        alias: target.alias,
+        timeshift: target.timeshift,
         tags: this.extractTags(series_names),
         shouldComputeRate: target.shouldComputeRate,
         shouldEWMA: target.shouldEWMA,
@@ -600,6 +607,7 @@ class AkumuliDatasource {
   /** Query time-series storage */
   selectTargetQuery(begin, end, limit, target) {
     var metricName = target.metric;
+    var shift = this.getTimeShift(target);
     var tags = {};
     if (target.tags) {
       if (target.tags instanceof Array) {
@@ -660,7 +668,11 @@ class AkumuliDatasource {
             break;
           case 1:
             // parse timestamp
-            timestamp = moment.utc(line.substr(1)).local();
+            timestamp = moment.utc(line.substr(1));
+            if (shift != null) {
+              timestamp.add(shift);
+            }
+            timestamp = timestamp.local();
             break;
           case 2:
             value = parseFloat(line.substr(1));
@@ -699,10 +711,18 @@ class AkumuliDatasource {
     });
   }
 
+  getTimeShift(target) {
+    var isShift  = target.timeshift ? true : false;
+    var shift    = null;
+    if (isShift) {
+      var ts = target.timeshift.trim();
+      shift = moment.duration(parseInt(ts.slice(0, -1)), ts.slice(ts.length - 1));
+    }
+    return shift;
+  }
+
 
   query(options) {
-    var begin    = options.range.from.utc();
-    var end      = options.range.to.utc();
     var interval = options.interval;
     // This is a safety measure against overload of the browser. Akumuli can return more than one
     // Series for a single plot. Grafana's maxDataPoints value is not adequate as a limit value
@@ -712,6 +732,13 @@ class AkumuliDatasource {
     // many data-points without hanging or crashing.
     var limit    = 1000000;
     var allQueryPromise = _.map(options.targets, target => {
+      var begin    = options.range.from.clone().utc();
+      var end      = options.range.to.clone().utc();
+      var shift    = this.getTimeShift(target);
+      if (shift != null) {
+        begin.subtract(shift);
+        end.subtract(shift);
+      }
       if (target.hide === true) {
         return new Promise((resolve, reject) => {
           resolve([]);

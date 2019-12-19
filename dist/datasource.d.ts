@@ -31,6 +31,7 @@ declare class AkumuliDatasource {
     selectTopNQuery(begin: any, end: any, limit: any, target: any): any;
     /** Query time-series storage */
     selectTargetQuery(begin: any, end: any, limit: any, target: any): any;
+    getTimeShift(target: any): any;
     query(options: any): any;
 }
 export { AkumuliDatasource };

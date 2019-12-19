@@ -409,6 +409,7 @@ class AkumuliDatasource {
       });
       var newTarget = {
         metric: metricName,
+        timeshift: target.timeshift,
         alias: target.alias,
         tags: this.extractTags(series_names),
         shouldComputeRate: target.shouldComputeRate,
@@ -591,8 +592,9 @@ class AkumuliDatasource {
         index++;
       });
       var newTarget = {
-        alias: target.alias,
         metric: metricName,
+        alias: target.alias,
+        timeshift: target.timeshift,
         tags: this.extractTags(series_names),
         shouldComputeRate: target.shouldComputeRate,
         shouldEWMA: target.shouldEWMA,

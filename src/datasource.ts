@@ -440,6 +440,7 @@ class AkumuliDatasource {
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
     var samplingInterval = this.templateSrv.replace(target.downsampleInterval || interval);
+    var pivotTags = target.pivotTags;
     var query: any = {
       "group-aggregate": {
         metric: metricName,
@@ -460,6 +461,9 @@ class AkumuliDatasource {
     }
     if (ewma) {
       query["apply"].push({name: "ewma", decay: decay});
+    }
+    if (pivotTags) {
+      query["pivot-by-tag"] = pivotTags;
     }
 
     var httpRequest: any = {
@@ -621,6 +625,7 @@ class AkumuliDatasource {
     var rate = target.shouldComputeRate;
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
+    var pivotTags = target.pivotTags;
     var query: any = {
       "select": metricName,
       range: {
@@ -637,6 +642,9 @@ class AkumuliDatasource {
     }
     if (ewma) {
       query["apply"].push({name: "ewma", decay: decay});
+    }
+    if (pivotTags) {
+      query["pivot-by-tag"] = pivotTags;
     }
     var httpRequest: any = {
       method: "POST",

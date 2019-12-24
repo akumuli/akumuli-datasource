@@ -21,6 +21,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
   suggestTagValues: any;
   suggestAlias: any;
   addTagMode: boolean;
+  addPivotTagMode: boolean;
   addFilterMode: boolean;
 
   /** @ngInject **/
@@ -131,6 +132,44 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     return;
   }
 
+  addPivotTag() {
+
+    if (!this.addPivotTagMode) {
+      this.addPivotTagMode = true;
+      return;
+    }
+
+    if (!this.target.pivotTags) {
+      this.target.pivotTags = [];
+    }
+
+    this.errors = this.validateTarget();
+
+    if (!this.errors.tags) {
+      this.target.pivotTags.push(this.target.currentPivotTagKey);
+      this.target.currentPivotTagKey = '';
+      this.targetBlur();
+    }
+
+    this.addPivotTagMode = false;
+  }
+
+  removePivotTag(key) {
+    this.target.pivotTags = this.target.pivotTags.filter(item => item !== key);
+    this.targetBlur();
+  }
+
+  editPivotTag(key) {
+    this.removePivotTag(key);
+    this.target.currentPivotTagKey = key;
+    this.addPivotTag();
+  }
+
+  closeAddPivotTagMode() {
+    this.addPivotTagMode = false;
+    return;
+  }
+
   validateTarget() {
     var errs: any = {};
 
@@ -148,6 +187,10 @@ export class AkumuliQueryCtrl extends QueryCtrl {
 
     if (this.target.tags && _.has(this.target.tags, this.target.currentTagKey)) {
       errs.tags = "Duplicate tag key '" + this.target.currentTagKey + "'.";
+    }
+
+    if (this.target.pivotTags && _.has(this.target.pivotTags, this.target.currentPivotTagKey)) {
+      errs.tags = "Duplicate tag key '" + this.target.currentPivotTagKey + "'.";
     }
 
     return errs;

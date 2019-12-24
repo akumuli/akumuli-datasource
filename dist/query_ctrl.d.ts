@@ -16,6 +16,7 @@ export declare class AkumuliQueryCtrl extends QueryCtrl {
     suggestTagValues: any;
     suggestAlias: any;
     addTagMode: boolean;
+    addPivotTagMode: boolean;
     addFilterMode: boolean;
     /** @ngInject **/
     constructor($scope: any, $injector: any);
@@ -25,5 +26,9 @@ export declare class AkumuliQueryCtrl extends QueryCtrl {
     removeTag(key: any): void;
     editTag(key: any, value: any): void;
     closeAddTagMode(): void;
+    addPivotTag(): void;
+    removePivotTag(key: any): void;
+    editPivotTag(key: any): void;
+    closeAddPivotTagMode(): void;
     validateTarget(): any;
 }

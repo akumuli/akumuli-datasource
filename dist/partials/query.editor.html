@@ -107,6 +107,54 @@
 	</div>
 
 	<div class="gf-form-inline">
+		<div class="gf-form">
+			<label class="gf-form-label query-keyword width-8">
+				Pivot Tags
+			</label>
+		</div>
+
+		<div class="gf-form" ng-repeat="key in ctrl.target.pivotTags" class="gf-form">
+			<label class="gf-form-label">
+				{{key}}
+				<a ng-click="ctrl.editPivotTag(key)">
+					<i class="fa fa-pencil"></i>
+				</a>
+				<a ng-click="ctrl.removePivotTag(key)">
+					<i class="fa fa-remove"></i>
+				</a>
+			</label>
+		</div>
+
+		<div class="gf-form" ng-hide="ctrl.addPivotTagMode">
+			<label class="gf-form-label query-keyword">
+				<a ng-click="ctrl.addPivotTag()"><i class="fa fa-plus"></i></a>
+			</label>
+		</div>
+
+		<div class="gf-form" ng-show="ctrl.addPivotTagMode">
+			<input type="text"
+				   class="gf-form-input" spellcheck='false'
+				   bs-typeahead="ctrl.suggestTagKeys" data-min-length=0 data-items=100
+				   ng-model="ctrl.target.currentPivotTagKey" placeholder="key">
+			</input>
+
+			<label class="gf-form-label" ng-show="ctrl.errors.tags">
+				<a bs-tooltip="ctrl.errors.tags" style="color: rgb(229, 189, 28)" >
+					<i class="fa fa-warning"></i>
+				</a>
+			</label>
+			<label class="gf-form-label" >
+				<a ng-click="ctrl.addPivotTag()" ng-hide="ctrl.errors.tags">add tag</a>
+				<a ng-click="ctrl.closeAddPivotTagMode()"><i class="fa fa-remove"></i></a>
+			</label>
+		</div>
+
+		<div class="gf-form gf-form--grow">
+			<div class="gf-form-label gf-form-label--grow"></div>
+		</div>
+	</div>
+
+	<div class="gf-form-inline">
 		<div class="gf-form max-width-25">
 			<label class="gf-form-label query-keyword width-8">Downsample</label>
 			<input type="text" class="gf-form-input"

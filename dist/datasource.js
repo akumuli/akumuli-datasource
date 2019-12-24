@@ -414,6 +414,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                             decay: target.decay,
                             downsampleAggregator: target.downsampleAggregator,
                             downsampleInterval: target.downsampleInterval,
+                            pivotTags: target.pivotTags,
+                            groupTags: target.groupTags,
                         };
                         return _this.groupAggregateTargetQuery(begin, end, interval, limit, newTarget);
                     });
@@ -440,6 +442,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var decay = target.decay || 0.5;
                     var samplingInterval = this.templateSrv.replace(target.downsampleInterval || interval);
                     var pivotTags = target.pivotTags;
+                    var groupTags = target.groupTags;
                     var query = {
                         "group-aggregate": {
                             metric: metricName,
@@ -463,6 +466,9 @@ System.register(['lodash', "moment"], function(exports_1) {
                     }
                     if (pivotTags) {
                         query["pivot-by-tag"] = pivotTags;
+                    }
+                    if (groupTags) {
+                        query["group-by-tag"] = groupTags;
                     }
                     var httpRequest = {
                         method: "POST",
@@ -599,6 +605,8 @@ System.register(['lodash', "moment"], function(exports_1) {
                             shouldComputeRate: target.shouldComputeRate,
                             shouldEWMA: target.shouldEWMA,
                             decay: target.decay,
+                            pivotTags: target.pivotTags,
+                            groupTags: target.groupTags,
                         };
                         return _this.selectTargetQuery(begin, end, limit, newTarget);
                     });
@@ -623,6 +631,7 @@ System.register(['lodash', "moment"], function(exports_1) {
                     var ewma = target.shouldEWMA;
                     var decay = target.decay || 0.5;
                     var pivotTags = target.pivotTags;
+                    var groupTags = target.groupTags;
                     var query = {
                         "select": metricName,
                         range: {
@@ -642,6 +651,9 @@ System.register(['lodash', "moment"], function(exports_1) {
                     }
                     if (pivotTags) {
                         query["pivot-by-tag"] = pivotTags;
+                    }
+                    if (groupTags) {
+                        query["group-by-tag"] = groupTags;
                     }
                     var httpRequest = {
                         method: "POST",

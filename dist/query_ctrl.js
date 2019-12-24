@@ -137,6 +137,35 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                     this.addPivotTagMode = false;
                     return;
                 };
+                AkumuliQueryCtrl.prototype.addGroupTag = function () {
+                    if (!this.addGroupTagMode) {
+                        this.addGroupTagMode = true;
+                        return;
+                    }
+                    if (!this.target.groupTags) {
+                        this.target.groupTags = [];
+                    }
+                    this.errors = this.validateTarget();
+                    if (!this.errors.tags) {
+                        this.target.groupTags.push(this.target.currentGroupTagKey);
+                        this.target.currentGroupTagKey = '';
+                        this.targetBlur();
+                    }
+                    this.addGroupTagMode = false;
+                };
+                AkumuliQueryCtrl.prototype.removeGroupTag = function (key) {
+                    this.target.groupTags = this.target.groupTags.filter(function (item) { return item !== key; });
+                    this.targetBlur();
+                };
+                AkumuliQueryCtrl.prototype.editGroupTag = function (key) {
+                    this.removeGroupTag(key);
+                    this.target.currentGroupTagKey = key;
+                    this.addGroupTag();
+                };
+                AkumuliQueryCtrl.prototype.closeAddGroupTagMode = function () {
+                    this.addGroupTagMode = false;
+                    return;
+                };
                 AkumuliQueryCtrl.prototype.validateTarget = function () {
                     var errs = {};
                     if (this.target.shouldDownsample) {
@@ -157,6 +186,9 @@ System.register(['lodash', 'app/core/utils/kbn', './css/query_editor.css!', 'app
                     }
                     if (this.target.pivotTags && lodash_1.default.has(this.target.pivotTags, this.target.currentPivotTagKey)) {
                         errs.tags = "Duplicate tag key '" + this.target.currentPivotTagKey + "'.";
+                    }
+                    if (this.target.groupTags && lodash_1.default.has(this.target.groupTags, this.target.currentGroupTagKey)) {
+                        errs.tags = "Duplicate tag key '" + this.target.currentGroupTagKey + "'.";
                     }
                     return errs;
                 };

@@ -417,6 +417,8 @@ class AkumuliDatasource {
         decay: target.decay,
         downsampleAggregator: target.downsampleAggregator,
         downsampleInterval: target.downsampleInterval,
+        pivotTags: target.pivotTags,
+        groupTags: target.groupTags,
       };
       return this.groupAggregateTargetQuery(begin, end, interval, limit, newTarget);
     });
@@ -441,6 +443,7 @@ class AkumuliDatasource {
     var decay = target.decay || 0.5;
     var samplingInterval = this.templateSrv.replace(target.downsampleInterval || interval);
     var pivotTags = target.pivotTags;
+    var groupTags = target.groupTags;
     var query: any = {
       "group-aggregate": {
         metric: metricName,
@@ -464,6 +467,9 @@ class AkumuliDatasource {
     }
     if (pivotTags) {
       query["pivot-by-tag"] = pivotTags;
+    }
+    if (groupTags) {
+      query["group-by-tag"] = groupTags;
     }
 
     var httpRequest: any = {
@@ -603,6 +609,8 @@ class AkumuliDatasource {
         shouldComputeRate: target.shouldComputeRate,
         shouldEWMA: target.shouldEWMA,
         decay: target.decay,
+        pivotTags: target.pivotTags,
+        groupTags: target.groupTags,
       };
       return this.selectTargetQuery(begin, end, limit, newTarget);
     });
@@ -626,6 +634,7 @@ class AkumuliDatasource {
     var ewma = target.shouldEWMA;
     var decay = target.decay || 0.5;
     var pivotTags = target.pivotTags;
+    var groupTags = target.groupTags;
     var query: any = {
       "select": metricName,
       range: {
@@ -645,6 +654,9 @@ class AkumuliDatasource {
     }
     if (pivotTags) {
       query["pivot-by-tag"] = pivotTags;
+    }
+    if (groupTags) {
+      query["group-by-tag"] = groupTags;
     }
     var httpRequest: any = {
       method: "POST",

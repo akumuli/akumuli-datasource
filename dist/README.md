@@ -30,6 +30,10 @@ You can set the metric name and tags using the `Metrics` tab. Note that the quer
 
 When the query returns many series it can be overwhelming. It makes sense to limit number of displayer series. `Top-N` allows you to specify max number series that should be returned. All series will be ordered by the area under the graph and the top N of them will be returned. Leave this control empty to return all series.
 
+### Group/Pivot by Tags
+
+You can use `Pivot By Tag` and `Group By Tag` controls to [merge multiple time-series](https://docs.akumuli.org/query-language#pivot-by-tag-field) together. Note that when you're use this controls the name of the series changes and this may affect how `Alias` is generated.
+
 ### Alias
 
 The `Alias` textbox can be used to provide alternative representation for the series name. You can use some plain text or you can use a template. The template can contain tag names prefixed with the '$' symbol. This names will be replaced with the tag values. For instance, if the series name is `proc.net.bytes direction=in host=dev iface=eth0` and the template is `$iface bytes $direction` the series name will be transformed into `eth0 bytes in`.

@@ -22,6 +22,7 @@ export class AkumuliQueryCtrl extends QueryCtrl {
   suggestAlias: any;
   addTagMode: boolean;
   addPivotTagMode: boolean;
+  addGroupTagMode: boolean;
   addFilterMode: boolean;
 
   /** @ngInject **/
@@ -170,6 +171,44 @@ export class AkumuliQueryCtrl extends QueryCtrl {
     return;
   }
 
+  addGroupTag() {
+
+    if (!this.addGroupTagMode) {
+      this.addGroupTagMode = true;
+      return;
+    }
+
+    if (!this.target.groupTags) {
+      this.target.groupTags = [];
+    }
+
+    this.errors = this.validateTarget();
+
+    if (!this.errors.tags) {
+      this.target.groupTags.push(this.target.currentGroupTagKey);
+      this.target.currentGroupTagKey = '';
+      this.targetBlur();
+    }
+
+    this.addGroupTagMode = false;
+  }
+
+  removeGroupTag(key) {
+    this.target.groupTags = this.target.groupTags.filter(item => item !== key);
+    this.targetBlur();
+  }
+
+  editGroupTag(key) {
+    this.removeGroupTag(key);
+    this.target.currentGroupTagKey = key;
+    this.addGroupTag();
+  }
+
+  closeAddGroupTagMode() {
+    this.addGroupTagMode = false;
+    return;
+  }
+
   validateTarget() {
     var errs: any = {};
 
@@ -191,6 +230,10 @@ export class AkumuliQueryCtrl extends QueryCtrl {
 
     if (this.target.pivotTags && _.has(this.target.pivotTags, this.target.currentPivotTagKey)) {
       errs.tags = "Duplicate tag key '" + this.target.currentPivotTagKey + "'.";
+    }
+
+    if (this.target.groupTags && _.has(this.target.groupTags, this.target.currentGroupTagKey)) {
+      errs.tags = "Duplicate tag key '" + this.target.currentGroupTagKey + "'.";
     }
 
     return errs;

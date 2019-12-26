@@ -82,7 +82,7 @@
 			<input type="text"
 						 class="gf-form-input" spellcheck='false'
 						 bs-typeahead="ctrl.suggestTagKeys" data-min-length=0 data-items=100
-					   ng-model="ctrl.target.currentTagKey" placeholder="key">
+					   ng-model="ctrl.target.currentTagKey" placeholder="tag">
 			</input>
 
 			<input type="text" class="gf-form-input"
@@ -107,9 +107,10 @@
 	</div>
 
 	<div class="gf-form-inline">
+		<!--Pivot-by-tag-->
 		<div class="gf-form">
 			<label class="gf-form-label query-keyword width-8">
-				Pivot Tags
+				Pivot By Tag
 			</label>
 		</div>
 
@@ -135,7 +136,7 @@
 			<input type="text"
 				   class="gf-form-input" spellcheck='false'
 				   bs-typeahead="ctrl.suggestTagKeys" data-min-length=0 data-items=100
-				   ng-model="ctrl.target.currentPivotTagKey" placeholder="key">
+				   ng-model="ctrl.target.currentPivotTagKey" placeholder="tag">
 			</input>
 
 			<label class="gf-form-label" ng-show="ctrl.errors.tags">
@@ -146,6 +147,49 @@
 			<label class="gf-form-label" >
 				<a ng-click="ctrl.addPivotTag()" ng-hide="ctrl.errors.tags">add tag</a>
 				<a ng-click="ctrl.closeAddPivotTagMode()"><i class="fa fa-remove"></i></a>
+			</label>
+		</div>
+
+		<!--Group-by-tag-->
+		<div class="gf-form">
+			<label class="gf-form-label query-keyword width-8">
+				Group By Tag
+			</label>
+		</div>
+
+		<div class="gf-form" ng-repeat="key in ctrl.target.groupTags" class="gf-form">
+			<label class="gf-form-label">
+				{{key}}
+				<a ng-click="ctrl.editGroupTag(key)">
+					<i class="fa fa-pencil"></i>
+				</a>
+				<a ng-click="ctrl.removeGroupTag(key)">
+					<i class="fa fa-remove"></i>
+				</a>
+			</label>
+		</div>
+
+		<div class="gf-form" ng-hide="ctrl.addGroupTagMode">
+			<label class="gf-form-label query-keyword">
+				<a ng-click="ctrl.addGroupTag()"><i class="fa fa-plus"></i></a>
+			</label>
+		</div>
+
+		<div class="gf-form" ng-show="ctrl.addGroupTagMode">
+			<input type="text"
+				   class="gf-form-input" spellcheck='false'
+				   bs-typeahead="ctrl.suggestTagKeys" data-min-length=0 data-items=100
+				   ng-model="ctrl.target.currentGroupTagKey" placeholder="tag">
+			</input>
+
+			<label class="gf-form-label" ng-show="ctrl.errors.tags">
+				<a bs-tooltip="ctrl.errors.tags" style="color: rgb(229, 189, 28)" >
+					<i class="fa fa-warning"></i>
+				</a>
+			</label>
+			<label class="gf-form-label" >
+				<a ng-click="ctrl.addGroupTag()" ng-hide="ctrl.errors.tags">add tag</a>
+				<a ng-click="ctrl.closeAddGroupTagMode()"><i class="fa fa-remove"></i></a>
 			</label>
 		</div>
 

@@ -12,7 +12,10 @@ Supported features of the datasource:
 - Top-N query support.
 - Autocomplete for metric names, tag names and values for easier discovery.
 - Aliases for series names (with autocomplete).
-- Templating support.
+- Templating.
+- Alarms.
+- Native per-series time shift.
+- Group/Pivot series by tag.
 
 Other Akumuli functions and aggregations will be added in the future.
 
@@ -46,6 +49,10 @@ You can change the downsampling interval using the `Downsample` control. If you'
 ### Rate
 
 This option can be enabled if the time-series that you need to display is a counter. The counter value is always growing and the absolute value can be very large. The `Rate` function will compute the first derivative of this series. For instance, this function can be used to display the graph for the total number of network packets sent/received through the network interface.
+
+### Time Shift
+
+This option can be used to shift query interval back in time. It's similar to Grafana's native 'Add time shfit' function that can be found on 'Time range' tab. The main difference is that 'Time Shift' can be set per-query. This means that you can compare different time intervals on the same plot.
 
 ## Templating
 

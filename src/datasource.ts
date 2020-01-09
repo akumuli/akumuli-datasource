@@ -498,8 +498,8 @@ class AkumuliDatasource {
         let step = index % 4;
         switch (step) {
           case 0:
-            // parse series name
-            series = line.replace(/(\S*)(:mean)(.*)/g, "$1$3").substr(1);
+            // parse series name and remove name of the function used for downsampling
+            series = line.replace(/(\S*)(:mean|:min|:max|:count|:sum)(.*)/g, "$1$3").substr(1);
             break;
           case 1:
             // parse timestamp

@@ -11,6 +11,7 @@
   "dependencies": {
     "load-grunt-tasks": "^3.5.2",
     "lodash": "^4.17.4",
+    "mathjs": "^6.5.0",
     "moment": "^2.18.1",
     "q": "^1.5.0",
     "systemjs": "^0.19.47"

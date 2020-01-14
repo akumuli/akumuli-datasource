@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import moment from "moment";
+import * as math from "mathjs";
 
 class AkumuliDatasource {
   private limitMultiplyer: number;

@@ -9,6 +9,7 @@
   "author": "Eugene Lazin",
   "license": "GPL",
   "dependencies": {
+    "@types/mathjs": "^6.0.3",
     "load-grunt-tasks": "^3.5.2",
     "lodash": "^4.17.4",
     "mathjs": "^6.5.0",
